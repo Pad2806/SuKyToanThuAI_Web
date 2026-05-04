@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { LOADING_MSGS } from "../data/constants";
 import "../styles/LoadingOverlay.css";
 
-export default function LoadingOverlay({ visible }) {
+export default function LoadingOverlay({ visible, message }) {
   const [msgIdx, setMsgIdx] = useState(0);
 
   useEffect(() => {
@@ -20,7 +20,9 @@ export default function LoadingOverlay({ visible }) {
   return (
     <div className="loading-overlay">
       <div className="loading-overlay__spinner" />
-      <div className="loading-overlay__msg">{LOADING_MSGS[msgIdx]}</div>
+      <div className="loading-overlay__msg">
+        {message || LOADING_MSGS[msgIdx]}
+      </div>
       <div className="loading-overlay__sub">
         AI đang làm việc chăm chỉ, vui lòng chờ một chút
       </div>

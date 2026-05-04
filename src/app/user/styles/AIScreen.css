@@ -333,20 +333,25 @@
 .canvas-content {
   flex: 1;
   overflow-y: auto;
-  padding: 32px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
   scrollbar-width: thin;
   scrollbar-color: var(--mid) transparent;
+}
+
+/* Each wrapper div around SlidePreview needs proper width */
+.canvas-content > div {
+  width: 100%;
+  max-width: 640px;
 }
 
 /* Slide Previews */
 .slide-preview {
   width: 100%;
-  max-width: 760px;
-  aspect-ratio: 16 / 9;
+  max-width: 640px;
   border-radius: 8px;
   overflow: hidden;
   position: relative;
@@ -354,6 +359,23 @@
   border: 1px solid var(--border);
   transition: all 0.3s ease;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  flex-shrink: 0;
+}
+
+/* Use padding-bottom trick for reliable 16:9 ratio in all contexts */
+.slide-preview::before {
+  content: '';
+  display: block;
+  padding-bottom: 56.25%; /* 9/16 = 0.5625 */
+}
+
+/* Force inner slide (.bw / .s) to fill the preview container uniformly */
+.slide-preview > .bw,
+.slide-preview > .s {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .slide-preview:hover {
@@ -402,4 +424,132 @@
 .canvas-more-hint span {
   color: var(--gold);
   cursor: pointer;
+}
+
+/* ─── Detail Panel (bấm slide để mở) ─── */
+.detail-panel {
+  width: 280px;
+  min-width: 280px;
+  flex-shrink: 0;
+  background: var(--dark-2);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  animation: slideInRight 0.25s ease;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--mid) transparent;
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.detail-panel__header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.detail-panel__close {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.detail-panel__close:hover {
+  background: var(--dark-4);
+  color: var(--text);
+}
+
+.detail-panel__body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.detail-panel__image {
+  position: relative;
+}
+
+.detail-panel__image img {
+  max-height: 200px;
+  object-fit: cover;
+}
+
+.detail-panel__license {
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  margin-top: 6px;
+}
+
+.detail-panel__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail-panel__field label {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+}
+
+.detail-panel__field div {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.detail-panel__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.detail-panel__tag {
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: rgba(201, 168, 76, 0.1);
+  border: 1px solid rgba(201, 168, 76, 0.2);
+  color: var(--gold);
+  font-size: 0.7rem;
+}
+
+.detail-panel__regen-btn {
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 6px;
+  background: rgba(201, 168, 76, 0.1);
+  border: 1px solid rgba(201, 168, 76, 0.3);
+  color: var(--gold);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 8px;
+}
+
+.detail-panel__regen-btn:hover:not(:disabled) {
+  background: rgba(201, 168, 76, 0.2);
+  border-color: var(--gold);
+}
+
+.detail-panel__regen-btn:disabled {
+  opacity: 0.5;
+  cursor: wait;
 }

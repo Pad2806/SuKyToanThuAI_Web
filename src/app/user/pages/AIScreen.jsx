@@ -1,115 +1,59 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { AI_REPLIES } from "../data/constants";
+import { regenerateImage, generateAndDownloadPptx } from "../../api/mediaApi";
+import SlidePreview from "../components/SlidePreview";
 import "../styles/AIScreen.css";
 
-// ─── Slide sub-components ───
-function Slide1() {
-  return (
-    <div
-      className="slide-preview slide-preview--editing"
-      style={{ background: "linear-gradient(135deg,#180808 0%,#2D1008 50%,#180808 100%)" }}
-    >
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", padding: 40, textAlign: "center" }}>
-        <div style={{ fontSize: "0.6rem", letterSpacing: "0.3em", textTransform: "uppercase", color: "rgba(201,168,76,0.6)", marginBottom: 12 }}>
-          Lịch sử Việt Nam
-        </div>
-        <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "2rem", fontWeight: 700, lineHeight: 1.2, marginBottom: 10, color: "#F0E8D8" }}>
-          Khởi Nghĩa<br />
-          <em style={{ color: "var(--gold)" }}>Hai Bà Trưng</em>
-        </div>
-        <div style={{ fontSize: "0.65rem", color: "rgba(240,232,216,0.4)", letterSpacing: "0.1em" }}>
-          Năm 40 Sau Công Nguyên
-        </div>
-        <div style={{ position: "absolute", bottom: 20, left: "50%", transform: "translateX(-50%)", fontSize: "2rem", opacity: 0.15 }}>🏯</div>
-      </div>
-      <div className="slide-preview__num">1 / 12</div>
-      <div className="slide-preview__edit-hint">✏ Click để chỉnh sửa</div>
-    </div>
-  );
-}
-
-function Slide2() {
-  return (
-    <div
-      className="slide-preview"
-      style={{ background: "linear-gradient(135deg,#0C1018 0%,#101828 100%)" }}
-    >
-      <div style={{ display: "flex", height: "100%", padding: "32px 40px", gap: 40, alignItems: "center" }}>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: "0.55rem", color: "var(--gold)", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: 8 }}>Bối cảnh</div>
-          <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "1.3rem", fontWeight: 700, marginBottom: 12, lineHeight: 1.3 }}>
-            Việt Nam dưới ách đô hộ của nhà Hán
-          </div>
-          <ul style={{ fontSize: "0.68rem", color: "rgba(240,232,216,0.7)", lineHeight: 1.8, paddingLeft: 16 }}>
-            <li>Nhà Hán đô hộ từ năm 111 TCN</li>
-            <li>Bóc lột nặng nề về thuế má</li>
-            <li>Đồng hóa văn hóa, ngôn ngữ</li>
-            <li>Phân biệt đối xử tàn tệ</li>
-          </ul>
-        </div>
-        <div style={{ width: 140, height: 140, borderRadius: "50%", background: "rgba(201,168,76,0.08)", border: "1px solid rgba(201,168,76,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "3.5rem", flexShrink: 0 }}>
-          ⛓️
-        </div>
-      </div>
-      <div className="slide-preview__num">2 / 12</div>
-      <div className="slide-preview__edit-hint">✏ Click để chỉnh sửa</div>
-    </div>
-  );
-}
-
-function Slide3() {
-  const leaders = [
-    { e: "👑", name: "Trưng Trắc", desc: "Con gái Lạc tướng Mê Linh, chồng là Thi Sách bị giặc Hán giết hại." },
-    { e: "⚔️", name: "Trưng Nhị",  desc: "Em gái Trưng Trắc, tướng giỏi, cùng chị lãnh đạo toàn bộ cuộc khởi nghĩa." },
-  ];
-
-  return (
-    <div
-      className="slide-preview"
-      style={{ background: "linear-gradient(160deg,#14080A 0%,#220E10 60%,#18080A 100%)" }}
-    >
-      <div style={{ display: "flex", height: "100%", flexDirection: "column", justifyContent: "center", padding: "32px 40px" }}>
-        <div style={{ fontSize: "0.55rem", color: "#D4846B", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: 8 }}>
-          Lãnh đạo khởi nghĩa
-        </div>
-        <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "1.3rem", fontWeight: 700, marginBottom: 20 }}>
-          Hai người phụ nữ làm rung chuyển lịch sử
-        </div>
-        <div style={{ display: "flex", gap: 20 }}>
-          {leaders.map((l) => (
-            <div key={l.name} style={{ flex: 1, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(213,100,80,0.2)", borderRadius: 6, padding: 14 }}>
-              <div style={{ fontSize: "1.4rem", marginBottom: 6 }}>{l.e}</div>
-              <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "#E8C97A", marginBottom: 4 }}>{l.name}</div>
-              <div style={{ fontSize: "0.65rem", color: "rgba(240,232,216,0.5)", lineHeight: 1.6 }}>{l.desc}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="slide-preview__num">3 / 12</div>
-      <div className="slide-preview__edit-hint">✏ Click để chỉnh sửa</div>
-    </div>
-  );
-}
-
 // ─── AIScreen ───
-export default function AIScreen({ setScreen }) {
+export default function AIScreen({ projectData }) {
+  const navigate = useNavigate();
+
+  // Dữ liệu từ LibraryScreen/WorkspaceScreen
+  const slides = projectData?.slides || [];
+  const [assets, setAssets] = useState(projectData?.assets || []);
+  const eventTitle = projectData?.event?.title || projectData?.outline?.title || "Dự án mới";
+  const totalSlides = slides.length;
+  const template = projectData?.template || "Classic";
+
+  // UI state
+  const [activeTab, setActiveTab] = useState("all"); // "all" hoặc slide_order number
+  const [selectedSlide, setSelectedSlide] = useState(null); // slide đang xem chi tiết
+  const [regeneratingSlide, setRegeneratingSlide] = useState(null);
+
+  // Refs cho scroll-to-slide
+  const slideRefs = useRef({});
+  const canvasRef = useRef(null);
+
+  // Chat state
   const initialMessages = [
     {
       role: "ai",
       content: (
         <>
-          <p>Xin chào! Mình đã đọc xong nội dung về <strong>Khởi nghĩa Hai Bà Trưng</strong>. 📜</p>
-          <p>Bạn muốn thiết kế Slide theo phong cách nào?</p>
+          <p>
+            Xin chào! Mình đã tạo xong{" "}
+            <strong>{totalSlides} slide</strong> cho{" "}
+            <strong>{eventTitle}</strong>. 📜
+          </p>
+          {assets.length > 0 && (
+            <p>
+              Đã tìm được ảnh cho{" "}
+              <strong>{assets.filter((a) => a.source !== "fallback").length}/{totalSlides}</strong>{" "}
+              slide từ Wikimedia Commons.
+            </p>
+          )}
+          <p>Bấm vào slide để xem chi tiết, hoặc bấm "Đổi ảnh" để thay ảnh khác.</p>
         </>
       ),
-      opts: ["🎓 Chuyên nghiệp / Học thuật", "🎨 Sinh động / Học sinh", "🏮 Cổ điển / Truyền thống"],
+      opts: null,
     },
   ];
 
-  const [messages, setMessages]   = useState(initialMessages);
-  const [inputVal, setInputVal]   = useState("");
-  const [replyIdx, setReplyIdx]   = useState(0);
-  const messagesEndRef             = useRef(null);
+  const [messages, setMessages] = useState(initialMessages);
+  const [inputVal, setInputVal] = useState("");
+  const [replyIdx, setReplyIdx] = useState(0);
+  const messagesEndRef = useRef(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -136,22 +80,138 @@ export default function AIScreen({ setScreen }) {
     setInputVal("");
   };
 
+  // ── Tab click → cuộn tới slide ────────────────────────────────────
+  function handleTabClick(slideOrder) {
+    setActiveTab(slideOrder);
+    setSelectedSlide(null); // Đóng detail panel nếu đang mở
+
+    if (slideOrder === "all") {
+      canvasRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    const el = slideRefs.current[slideOrder];
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }
+
+  // ── Click vào slide → mở chi tiết ────────────────────────────────
+  function handleSlideClick(slide) {
+    setSelectedSlide(selectedSlide?.slide_order === slide.slide_order ? null : slide);
+    setActiveTab(slide.slide_order);
+  }
+
+  // ── Regenerate Image ──────────────────────────────────────────────
+  const handleRegenerate = useCallback(
+    async (slide, currentAsset) => {
+      setRegeneratingSlide(slide.slide_order);
+
+      setMessages((prev) => [
+        ...prev,
+        { role: "user", text: `Đổi ảnh cho slide ${slide.slide_order}: ${slide.title || slide.image_suggestion}` },
+      ]);
+
+      try {
+        const result = await regenerateImage({
+          slide_order: slide.slide_order,
+          image_suggestion: slide.image_suggestion,
+          reason: "User muốn đổi ảnh khác",
+          exclude_urls: currentAsset?.image_url ? [currentAsset.image_url] : [],
+        });
+
+        if (result.success) {
+          const newAsset = result.data.asset;
+
+          setAssets((prev) => {
+            const updated = prev.filter((a) => a.slide_order !== slide.slide_order);
+            updated.push(newAsset);
+            return updated.sort((a, b) => a.slide_order - b.slide_order);
+          });
+
+          const isFallback = result.data.is_fallback;
+          setMessages((prev) => [
+            ...prev,
+            {
+              role: "ai",
+              text: `✅ Đã đổi ảnh cho slide ${slide.slide_order} thành công! Ảnh mới được AI tạo ra.`,
+              opts: null,
+            },
+          ]);
+        }
+      } catch (error) {
+        console.error("Regenerate failed:", error);
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "ai",
+            text: `❌ Lỗi khi đổi ảnh: ${error.message || "Không thể kết nối server"}`,
+            opts: null,
+          },
+        ]);
+      } finally {
+        setRegeneratingSlide(null);
+      }
+    },
+    []
+  );
+
+  function getAssetForSlide(slideOrder) {
+    return assets.find((a) => a.slide_order === slideOrder) || null;
+  }
+
+  // ── Fallback: không có projectData ─────────────────────────────────
+  if (!projectData || slides.length === 0) {
+    return (
+      <div className="ai-screen" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ textAlign: "center", color: "var(--text-dim)" }}>
+          <p style={{ fontSize: "1.2rem", marginBottom: 12 }}>📭 Chưa có dữ liệu slide</p>
+          <p style={{ fontSize: "0.8rem", marginBottom: 20 }}>
+            Hãy chọn sự kiện từ Thư viện hoặc nhập nội dung từ Sáng tạo để bắt đầu.
+          </p>
+          <button
+            className="btn-icon btn-icon--primary"
+            onClick={() => navigate("/library")}
+            style={{ padding: "10px 24px", fontSize: "0.85rem" }}
+          >
+            📚 Đi tới Thư viện
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const detailAsset = selectedSlide ? getAssetForSlide(selectedSlide.slide_order) : null;
+
   return (
     <div className="ai-screen">
       {/* ── Topbar ── */}
       <div className="ai-topbar">
         <div className="ai-topbar__left">
-          <button className="ai-topbar__back" onClick={() => setScreen("library")}>
+          <button className="ai-topbar__back" onClick={() => navigate("/library")}>
             ← Quay lại
           </button>
           <div className="ai-topbar__project">
             <span className="ai-topbar__dot" />
-            Khởi nghĩa Hai Bà Trưng – Slide 12 trang
+            {eventTitle} – {projectData.outputType === "comic" ? "Truyện tranh" : "Slide"} {totalSlides} trang
           </div>
         </div>
         <div className="ai-topbar__right">
           <button className="btn-icon">🔗 Chia sẻ</button>
-          <button className="btn-icon btn-icon--primary">⬇ Xuất file</button>
+          <button
+            className="btn-icon btn-icon--primary"
+            onClick={async () => {
+              try {
+                await generateAndDownloadPptx(eventTitle, slides);
+                window.open("https://www.canva.com/", "_blank");
+              } catch (e) {
+                console.error("Download PPTX failed:", e);
+                alert("Lỗi tạo file PPTX.");
+              }
+            }}
+          >
+            ✏️ Chỉnh sửa
+          </button>
         </div>
       </div>
 
@@ -199,15 +259,24 @@ export default function AIScreen({ setScreen }) {
 
         {/* Canvas Panel */}
         <div className="canvas-panel">
+          {/* Toolbar với tabs có thể bấm */}
           <div className="canvas-toolbar">
-            <button className="canvas-tab canvas-tab--active">Xem trước</button>
-            <div className="canvas-tab-divider" />
-            <button className="canvas-tab">Slide 1</button>
-            <button className="canvas-tab">Slide 2</button>
-            <button className="canvas-tab">Slide 3</button>
-            <button className="canvas-tab" style={{ color: "var(--text-dim)" }}>
-              + 9 trang khác
+            <button
+              className={`canvas-tab ${activeTab === "all" ? "canvas-tab--active" : ""}`}
+              onClick={() => handleTabClick("all")}
+            >
+              Xem trước
             </button>
+            <div className="canvas-tab-divider" />
+            {slides.map((s) => (
+              <button
+                key={s.slide_order}
+                className={`canvas-tab ${activeTab === s.slide_order ? "canvas-tab--active" : ""}`}
+                onClick={() => handleTabClick(s.slide_order)}
+              >
+                Slide {s.slide_order}
+              </button>
+            ))}
             <div className="canvas-zoom">
               <button className="canvas-zoom__btn">−</button>
               <span>100%</span>
@@ -215,16 +284,109 @@ export default function AIScreen({ setScreen }) {
             </div>
           </div>
 
-          <div className="canvas-content">
-            <Slide1 />
-            <Slide2 />
-            <Slide3 />
-            <p className="canvas-more-hint">
-              ... 9 trang còn lại đang được AI tạo ra •{" "}
-              <span>Xem tất cả</span>
-            </p>
+          {/* Canvas content */}
+          <div className="canvas-content" ref={canvasRef}>
+            {slides.map((slide) => (
+              <div
+                key={slide.slide_order}
+                ref={(el) => (slideRefs.current[slide.slide_order] = el)}
+              >
+                <SlidePreview
+                  slide={slide}
+                  asset={getAssetForSlide(slide.slide_order)}
+                  slideIndex={slide.slide_order}
+                  totalSlides={totalSlides}
+                  template={template}
+                  onRegenerate={handleRegenerate}
+                  isRegenerating={regeneratingSlide === slide.slide_order}
+                  onClick={() => handleSlideClick(slide)}
+                  isSelected={selectedSlide?.slide_order === slide.slide_order}
+                />
+              </div>
+            ))}
           </div>
         </div>
+
+        {/* ── Detail Panel (bấm slide để mở) ── */}
+        {selectedSlide && (
+          <div className="detail-panel">
+            <div className="detail-panel__header">
+              <span>📋 Chi tiết Slide {selectedSlide.slide_order}</span>
+              <button
+                className="detail-panel__close"
+                onClick={() => setSelectedSlide(null)}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="detail-panel__body">
+              {/* Ảnh lớn */}
+              {detailAsset && detailAsset.image_url && (
+                <div className="detail-panel__image">
+                  <img
+                    src={detailAsset.image_url}
+                    alt={selectedSlide.title}
+                    style={{
+                      width: "100%",
+                      borderRadius: 6,
+                      border: "1px solid var(--border)",
+                    }}
+                  />
+                  <div className="detail-panel__license">
+                    📷 {detailAsset.license || "Wikimedia Commons"}
+                  </div>
+                </div>
+              )}
+
+              {/* Thông tin slide */}
+              <div className="detail-panel__field">
+                <label>Tiêu đề</label>
+                <div>{selectedSlide.title || "—"}</div>
+              </div>
+
+              <div className="detail-panel__field">
+                <label>Nội dung</label>
+                <div>{selectedSlide.content || selectedSlide.image_suggestion || "—"}</div>
+              </div>
+
+              <div className="detail-panel__field">
+                <label>Gợi ý ảnh</label>
+                <div>{selectedSlide.image_suggestion || "—"}</div>
+              </div>
+
+              {selectedSlide.layout_type && (
+                <div className="detail-panel__field">
+                  <label>Layout</label>
+                  <div>{selectedSlide.layout_type}</div>
+                </div>
+              )}
+
+              {/* Keywords đã dùng */}
+              {detailAsset?.keywords_used?.length > 0 && (
+                <div className="detail-panel__field">
+                  <label>Keywords tìm ảnh</label>
+                  <div className="detail-panel__tags">
+                    {detailAsset.keywords_used.map((kw, i) => (
+                      <span key={i} className="detail-panel__tag">{kw}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Nút đổi ảnh */}
+              <button
+                className="detail-panel__regen-btn"
+                onClick={() => handleRegenerate(selectedSlide, detailAsset)}
+                disabled={regeneratingSlide === selectedSlide.slide_order}
+              >
+                {regeneratingSlide === selectedSlide.slide_order
+                  ? "⏳ Đang tìm ảnh mới..."
+                  : "🔄 Đổi ảnh khác"}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
