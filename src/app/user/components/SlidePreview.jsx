@@ -23,8 +23,23 @@ import BWSectionDividerSlide from "./slides/BlackWhiteModel/SectionDividerSlide"
 import BWEndingSlide from "./slides/BlackWhiteModel/EndingSlide";
 import BWImageSourcesSlide from "./slides/BlackWhiteModel/ImageSourcesSlide";
 
+// ── VintageElegance template ──
+import VETitleSlide from "./slides/VintageElegance/TitleSlide";
+import VEIntroductionSlide from "./slides/VintageElegance/IntroductionSlide";
+import VEContentSlide from "./slides/VintageElegance/ContentSlide";
+import VETwoColumnSlide from "./slides/VintageElegance/TwoColumnSlide";
+import VETimelineSlide from "./slides/VintageElegance/TimelineSlide";
+import VESummarySlide from "./slides/VintageElegance/SummarySlide";
+import VEQuoteSlide from "./slides/VintageElegance/QuoteSlide";
+import VETableSlide from "./slides/VintageElegance/TableSlide";
+import VEDataResultsSlide from "./slides/VintageElegance/DataResultsSlide";
+import VESectionDividerSlide from "./slides/VintageElegance/SectionDividerSlide";
+import VEEndingSlide from "./slides/VintageElegance/EndingSlide";
+import VEImageSourcesSlide from "./slides/VintageElegance/ImageSourcesSlide";
+
 import "../styles/SlideTemplates.css";
 import "../styles/BlackWhiteModel.css";
+import "../styles/VintageElegance.css";
 
 // ── Template maps ──
 const CLASSIC_MAP = {
@@ -54,9 +69,25 @@ const BW_MAP = {
   image_sources: BWImageSourcesSlide,
 };
 
+const VE_MAP = {
+  title: VETitleSlide,
+  introduction: VEIntroductionSlide,
+  content: VEContentSlide,
+  two_column: VETwoColumnSlide,
+  timeline: VETimelineSlide,
+  summary: VESummarySlide,
+  quote: VEQuoteSlide,
+  table: VETableSlide,
+  data_results: VEDataResultsSlide,
+  section_divider: VESectionDividerSlide,
+  ending: VEEndingSlide,
+  image_sources: VEImageSourcesSlide,
+};
+
 const TEMPLATE_MAPS = {
   Classic: CLASSIC_MAP,
   BlackWhiteModel: BW_MAP,
+  VintageElegance: VE_MAP,
 };
 
 export default function SlidePreview({
