@@ -1,9 +1,12 @@
 export default function HeaderBlock({ data }) {
+  const bgStyle = data.image_url
+    ? { backgroundImage: `url(${data.image_url})`, backgroundSize: "cover", backgroundPosition: "center" }
+    : {};
+
   return (
     <div className="ig-block ig-header">
       {data.image_url && (
-        <div className="ig-header__bg">
-          <img src={data.image_url} alt={data.title} />
+        <div className="ig-header__bg" style={bgStyle}>
           <div className="ig-header__overlay" />
         </div>
       )}
