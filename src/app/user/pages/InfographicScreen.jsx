@@ -12,6 +12,7 @@ export default function InfographicScreen({ projectData }) {
   const rendererRef = useRef(null);
   const [exporting, setExporting] = useState(false);
   const [loadingImages, setLoadingImages] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState("template1");
 
   // Dùng data từ Gemini nếu có, fallback sang mock
   const isAIGenerated = !!projectData?.infographicData;
@@ -126,6 +127,21 @@ export default function InfographicScreen({ projectData }) {
             <span className="infographic-screen__badge infographic-screen__badge--loading">🖼️ Đang tải ảnh...</span>
           )}
         </div>
+        <div className="infographic-screen__template-picker">
+          {[
+            { id: "template1", label: "Classic" },
+            { id: "template2", label: "Museum" },
+            { id: "template3", label: "Royal" },
+          ].map(tpl => (
+            <button
+              key={tpl.id}
+              className={`infographic-screen__tpl-btn ${selectedTemplate === tpl.id ? "infographic-screen__tpl-btn--active" : ""}`}
+              onClick={() => setSelectedTemplate(tpl.id)}
+            >
+              {tpl.label}
+            </button>
+          ))}
+        </div>
         <div className="infographic-screen__export-group">
           <button
             className="infographic-screen__export infographic-screen__export--outline"
@@ -146,7 +162,7 @@ export default function InfographicScreen({ projectData }) {
 
       {/* Content */}
       <div className="infographic-screen__content">
-        <InfographicRenderer blocks={data.blocks} rendererRef={rendererRef} />
+        <InfographicRenderer blocks={data.blocks} rendererRef={rendererRef} template={selectedTemplate} />
       </div>
     </div>
   );

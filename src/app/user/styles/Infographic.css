@@ -695,3 +695,79 @@
 .ig-block + .ig-block::before {
   display: none;
 }
+  border-radius: 10px;
+  margin-top: 20px;
+}
+
+.ig-block__image-frame--circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin-top: 20px;
+  border-width: 2px;
+}
+
+/* ═══ TIMELINE WITH SIDE IMAGE ═══ */
+.ig-timeline__layout {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.ig-timeline__layout .ig-timeline__track {
+  flex: 1;
+}
+
+.ig-timeline__image {
+  width: 200px;
+  height: 260px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--ig-border);
+  flex-shrink: 0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.ig-timeline__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Override divider for blocks with ornaments */
+.ig-block + .ig-block::before {
+  display: none;
+}
+
+/* ═══ TEMPLATE PICKER ═══ */
+.infographic-screen__template-picker {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  background: rgba(255,255,255,0.06);
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.infographic-screen__tpl-btn {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ig-text-muted, #b8a898);
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.infographic-screen__tpl-btn:hover {
+  background: rgba(255,255,255,0.08);
+  color: var(--ig-text, #f5f0e8);
+}
+
+.infographic-screen__tpl-btn--active {
+  background: var(--ig-accent, #d4a574);
+  color: #1a0e08;
+  font-weight: 600;
+}
