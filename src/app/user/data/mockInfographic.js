@@ -25,7 +25,7 @@ export const MOCK_INFOGRAPHIC_DATA = {
       title: "Khởi Nghĩa Hai Bà Trưng",
       subtitle: "Cuộc khởi nghĩa chống Bắc thuộc đầu tiên trong lịch sử Việt Nam",
       era: "Năm 40 – 43 SCN",
-      image_suggestion: "Cach Mang Thang Tam historical ",
+      image_suggestion: "Hai Ba Trung",
       image_url: null,
     },
     {
@@ -33,8 +33,6 @@ export const MOCK_INFOGRAPHIC_DATA = {
       block_type: "intro",
       content:
         "Khởi nghĩa Hai Bà Trưng là cuộc nổi dậy chống lại ách đô hộ của nhà Đông Hán, do hai chị em Trưng Trắc và Trưng Nhị lãnh đạo vào mùa xuân năm 40 SCN. Đây là lần đầu tiên người Việt giành lại được quyền tự chủ sau hơn 200 năm Bắc thuộc, đồng thời khẳng định vai trò to lớn của phụ nữ Việt Nam trong sự nghiệp đấu tranh giải phóng dân tộc.",
-      image_suggestion: "Trung Trac Trung Nhi",
-      image_url: null,
     },
     {
       block_order: 3,
@@ -146,15 +144,13 @@ export const MOCK_INFOGRAPHIC_DATA = {
     },
     {
       block_order: 8,
-      block_type: "footer",
+      block_type: "outtro",
       title: "Ý nghĩa lịch sử",
-      sources: [
-        "Đại Việt sử ký toàn thư",
-        "Wikimedia Commons",
-        "Sách giáo khoa Lịch sử lớp 6",
-      ],
-      credits: "SuKyToanThu AI — Tạo bởi trí tuệ nhân tạo",
-    },
+      content:
+        "Khởi nghĩa Hai Bà Trưng đã để lại trang sử vàng chói lọi, khẳng định ý chí độc lập và tinh thần quật cường của dân tộc Việt Nam. Dù thất bại, cuộc khởi nghĩa đã gieo mầm cho những phong trào đấu tranh giải phóng dân tộc về sau, đồng thời là minh chứng hùng hồn cho sức mạnh và vai trò to lớn của phụ nữ Việt Nam trong công cuộc giữ nước.",
+      image_suggestion: "Hai Ba Trung",
+      image_url: null,
+    }
   ],
 };
 

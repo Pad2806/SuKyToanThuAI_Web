@@ -8,6 +8,7 @@ import {
   GalleryBlock,
   KeyFiguresBlock,
   FooterBlock,
+  OuttroBlock,
 } from "./template1";
 
 const BLOCK_MAP = {
@@ -20,6 +21,7 @@ const BLOCK_MAP = {
   gallery: GalleryBlock,
   key_figures: KeyFiguresBlock,
   footer: FooterBlock,
+  outtro: OuttroBlock,
 };
 
 export default function InfographicRenderer({ blocks, rendererRef }) {

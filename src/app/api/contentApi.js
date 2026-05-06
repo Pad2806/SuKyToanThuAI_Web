@@ -362,7 +362,7 @@ CÁC BLOCK_TYPE HỖ TRỢ:
    { block_order, block_type: "header", title, subtitle, era, image_suggestion: "English keyword for hero image" }
 
 2. "intro" — Đoạn văn giới thiệu:
-   { block_order, block_type: "intro", content, image_suggestion: "English keyword for intro image" }
+   { block_order, block_type: "intro", title: "Có thể có hoặc null", content: "...", image_suggestion: null }
 
 3. "timeline" — Dòng thời gian dọc (3-6 sự kiện):
    { block_order, block_type: "timeline", title, events: [{ year, title, description }], image_suggestion: "English keyword" }
@@ -384,15 +384,16 @@ CÁC BLOCK_TYPE HỖ TRỢ:
    { block_order, block_type: "gallery", title, images: [{ caption: "Mô tả tiếng Việt", image_suggestion: "English keyword for wiki image" }] }
 
 9. "footer" — Footer + nguồn:
-   { block_order, block_type: "footer", title: "Ý nghĩa lịch sử", sources: ["..."], credits: "SuKyToanThu AI — Tạo bởi trí tuệ nhân tạo" }
+   { block_order, block_type: "footer", title: "Nguồn tham khảo", sources: ["..."], credits: "SuKyToanThu AI — Tạo bởi trí tuệ nhân tạo" }
 
 YÊU CẦU:
 - Tạo 7-9 blocks đa dạng block_type
 - Block đầu tiên PHẢI là "header", block cuối PHẢI là "footer"
 - PHẢI có 1 block "gallery" với 2-3 ảnh
+- outtro (với title="Ý nghĩa lịch sử"): Trình bày phần ý nghĩa lịch sử ngắn gọn, cô đọng. KHỐI NÀY PHẢI CÓ image_suggestion BẰNG TIẾNG ANH.
+- CHỈ khối "header" và khối "outtro" có title="Ý nghĩa lịch sử" là có giá trị image_suggestion. Các khối khác phải có image_suggestion = null.
 - Nội dung chính xác lịch sử, dựa trên nội dung user cung cấp
 - Viết bằng tiếng Việt (trừ image_suggestion phải bằng tiếng Anh)
-- image_suggestion phải cụ thể, mô tả rõ ràng để tìm được ảnh trên Wikimedia Commons
   Ví dụ: "Dien Bien Phu battle 1954", "Vo Nguyen Giap general", "French Indochina map"
 - Tạo nội dung chi tiết, có số liệu cụ thể nếu có thể
 - Trích xuất quote nếu có trong nội dung, nếu không có thì tự tạo quote phù hợp bối cảnh

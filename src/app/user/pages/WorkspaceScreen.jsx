@@ -74,9 +74,9 @@ export default function WorkspaceScreen({ setLoading, setLoadingMsg, setProjectD
         if (infographicData) {
           // Bước 2: Trích keyword từ blocks header + intro
           const headerBlock = infographicData.blocks.find(b => b.block_type === "header");
-          const introBlock = infographicData.blocks.find(b => b.block_type === "intro");
+          const sigBlock = infographicData.blocks.find(b => b.block_type === "outtro");
           const headerKw = headerBlock?.image_suggestion || null;
-          const introKw = introBlock?.image_suggestion || null;
+          const introKw = sigBlock?.image_suggestion || null;
 
           // Bước 3: Gọi endpoint riêng lấy 2 ảnh (truyền keyword trực tiếp)
           setLoadingMsg("🖼️ Đang tìm ảnh minh họa từ Wikimedia...");
@@ -90,9 +90,16 @@ export default function WorkspaceScreen({ setLoading, setLoadingMsg, setProjectD
               // Bước 4: Gán image_url vào block header + intro
               const images = mediaResult.data.images;
               for (const block of infographicData.blocks) {
-                const match = images.find(img => img.role === block.block_type);
-                if (match && match.source !== "fallback") {
-                  block.image_url = match.image_url;
+                if (block.block_type === "header") {
+                  const match = images.find(img => img.role === "header");
+                  if (match && match.source !== "fallback") {
+                    block.image_url = match.image_url;
+                  }
+                } else if (block.block_type === "outtro") {
+                  const match = images.find(img => img.role === "intro"); // backend API refers to the 2nd image as intro
+                  if (match && match.source !== "fallback") {
+                    block.image_url = match.image_url;
+                  }
                 }
               }
               setLoadingMsg(`🎨 Đã tìm ${mediaResult.data.total_found}/2 ảnh, đang hoàn thiện...`);

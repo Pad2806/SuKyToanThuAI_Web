@@ -23,12 +23,12 @@ export default function InfographicScreen({ projectData }) {
   // ── Tự động fetch ảnh khi có image_suggestion nhưng chưa có image_url ──
   useEffect(() => {
     const headerBlock = data.blocks.find(b => b.block_type === "header");
-    const introBlock = data.blocks.find(b => b.block_type === "intro");
+    const outtroBlock = data.blocks.find(b => b.block_type === "outtro");
 
     const needsHeaderImage = headerBlock?.image_suggestion && !headerBlock?.image_url;
-    const needsIntroImage = introBlock?.image_suggestion && !introBlock?.image_url;
+    const needsOuttroImage = outtroBlock?.image_suggestion && !outtroBlock?.image_url;
 
-    if (!needsHeaderImage && !needsIntroImage) return;
+    if (!needsHeaderImage && !needsOuttroImage) return;
 
     let cancelled = false;
 
@@ -38,7 +38,7 @@ export default function InfographicScreen({ projectData }) {
         const result = await generateInfographicImages(
           data.title,
           headerBlock?.image_suggestion || null,
-          introBlock?.image_suggestion || null,
+          outtroBlock?.image_suggestion || null,
         );
 
         if (cancelled) return;
@@ -46,9 +46,17 @@ export default function InfographicScreen({ projectData }) {
         if (result.success && result.data.images.length > 0) {
           // Clone blocks và gán image_url
           const updatedBlocks = data.blocks.map(block => {
-            const match = result.data.images.find(img => img.role === block.block_type);
-            if (match && match.source !== "fallback") {
-              return { ...block, image_url: match.image_url };
+            if (block.block_type === "header") {
+              const match = result.data.images.find(img => img.role === "header");
+              if (match && match.source !== "fallback") {
+                return { ...block, image_url: match.image_url };
+              }
+            } else if (block.block_type === "outtro") {
+              // Backend trả role="intro" cho ảnh thứ 2
+              const match = result.data.images.find(img => img.role === "intro");
+              if (match && match.source !== "fallback") {
+                return { ...block, image_url: match.image_url };
+              }
             }
             return block;
           });

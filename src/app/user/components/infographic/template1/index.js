@@ -7,3 +7,4 @@ export { default as ComparisonBlock } from "./ComparisonBlock";
 export { default as GalleryBlock } from "./GalleryBlock";
 export { default as KeyFiguresBlock } from "./KeyFiguresBlock";
 export { default as FooterBlock } from "./FooterBlock";
+export { default as OuttroBlock } from "./OuttroBlock";
