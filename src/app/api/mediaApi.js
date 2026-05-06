@@ -24,6 +24,31 @@ export async function generateAssets(projectId, slides) {
 }
 
 /**
+ * Tìm 2 ảnh cho infographic (header + intro).
+ * Gọi endpoint riêng, nhẹ hơn generate-assets.
+ *
+ * @param {string} title - Tiêu đề sự kiện (tiếng Việt)
+ * @param {string|null} headerKeyword - Keyword EN cho ảnh header (từ block.image_suggestion)
+ * @param {string|null} introKeyword - Keyword EN cho ảnh intro (từ block.image_suggestion)
+ * @returns {Promise<{success: boolean, data: {images: Array, total_found: number}}>}
+ *
+ * @example
+ * const result = await generateInfographicImages(
+ *   "Chiến thắng Điện Biên Phủ 1954",
+ *   "Dien Bien Phu battle 1954",
+ *   "Dien Bien Phu painting illustration"
+ * );
+ */
+export async function generateInfographicImages(title, headerKeyword = null, introKeyword = null) {
+  const { data } = await api.post("/media/infographic-images", {
+    title,
+    header_keyword: headerKeyword,
+    intro_keyword: introKeyword,
+  });
+  return data;
+}
+
+/**
  * Đổi ảnh cho 1 slide khi user không hài lòng.
  *
  * @param {Object} params

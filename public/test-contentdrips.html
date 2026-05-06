@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test: Contentdrips API</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #0f0f0f; color: #e0e0e0; min-height: 100vh; }
+    .app { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+    h1 { font-size: 1.6rem; background: linear-gradient(135deg, #6366f1, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+    .subtitle { color: #888; font-size: 0.85rem; margin-bottom: 24px; }
+
+    .controls { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: flex-end; }
+    .control-group { display: flex; flex-direction: column; gap: 4px; }
+    .control-group label { font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+    input, select { background: #1a1a1a; border: 1px solid #333; color: #e0e0e0; padding: 10px 14px; border-radius: 8px; font-size: 0.85rem; font-family: inherit; }
+    input { min-width: 300px; }
+    input:focus, select:focus { outline: none; border-color: #6366f1; }
+
+    .btn { padding: 10px 24px; border: none; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+    .btn-primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .btn-secondary { background: #2a2a2a; color: #e0e0e0; border: 1px solid #444; }
+
+    .status { padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 0.8rem; display: none; }
+    .status.loading { display: block; background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.3); color: #a78bfa; }
+    .status.error { display: block; background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.3); color: #fca5a5; }
+    .status.success { display: block; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); color: #86efac; }
+
+    .log { background: #111; border: 1px solid #333; border-radius: 8px; padding: 16px; margin-top: 16px; font-size: 0.75rem; line-height: 1.6; color: #a0a0a0; max-height: 400px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; }
+    .log .step { color: #6366f1; font-weight: 600; }
+    .log .ok { color: #86efac; }
+    .log .err { color: #fca5a5; }
+    .log .data { color: #fbbf24; }
+
+    .result-gallery { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+    .result-gallery img { max-width: 320px; border-radius: 8px; border: 1px solid #333; cursor: pointer; transition: transform 0.2s; }
+    .result-gallery img:hover { transform: scale(1.02); }
+
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .loading-text { animation: pulse 1.5s infinite; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>🧪 Test: Contentdrips API</h1>
+    <p class="subtitle">Proof of Concept — Dùng Contentdrips AI Carousel sinh infographic từ topic lịch sử</p>
+
+    <div class="controls">
+      <div class="control-group">
+        <label>Template ID</label>
+        <input type="text" id="templateId" value="126149" placeholder="ID template trên Contentdrips">
+      </div>
+
+      <div class="control-group">
+        <label>Chủ đề</label>
+        <input type="text" id="topicInput" value="Khởi nghĩa Hai Bà Trưng năm 40 SCN - cuộc khởi nghĩa chống ách đô hộ nhà Hán" placeholder="Nhập chủ đề lịch sử...">
+      </div>
+
+      <div class="control-group">
+        <label>Output</label>
+        <select id="outputFormat">
+          <option value="png">PNG (nhiều ảnh)</option>
+          <option value="pdf">PDF (1 file)</option>
+        </select>
+      </div>
+
+      <button class="btn btn-primary" id="generateBtn" onclick="runTest()">🚀 Sinh Carousel</button>
+    </div>
+
+    <div class="status" id="status"></div>
+    <div class="log" id="log" style="display: none;"></div>
+    <div class="result-gallery" id="gallery"></div>
+  </div>
+
+  <script>
+    const API_KEY = "79b9a5ba4173c0511c77a0efbde1e3257510e3211517156a3908cedb89e3f15f";
+    const BASE_URL = "http://localhost:9090/proxy"; // Proxy qua node để bypass CORS
+
+    function setStatus(type, msg) {
+      const el = document.getElementById("status");
+      el.className = `status ${type}`;
+      el.innerHTML = msg;
+    }
+
+    function log(msg, cls = "") {
+      const el = document.getElementById("log");
+      el.style.display = "block";
+      const span = document.createElement("span");
+      span.className = cls;
+      span.textContent = msg + "\n";
+      el.appendChild(span);
+      el.scrollTop = el.scrollHeight;
+    }
+
+    function clearLog() {
+      document.getElementById("log").innerHTML = "";
+      document.getElementById("gallery").innerHTML = "";
+    }
+
+    async function sleep(ms) {
+      return new Promise(r => setTimeout(r, ms));
+    }
+
+    // ── Step 1: Submit AI Carousel Job ──────────────────────────────────
+    async function submitJob(templateId, topic, output) {
+      log(`[1/3] Submitting AI Carousel job...`, "step");
+      log(`  Template: ${templateId}, Topic: "${topic}", Output: ${output}`);
+
+      const response = await fetch(`${BASE_URL}/render?tool=carousel-maker`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${API_KEY}`,
+        },
+        body: JSON.stringify({
+          template_id: templateId,
+          output: output,
+          ai_carousel: {
+            method: "topic",
+            input: topic,
+          },
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        log(`  ❌ Error ${response.status}: ${JSON.stringify(data)}`, "err");
+        throw new Error(`Submit failed (${response.status}): ${data.message || data.error || JSON.stringify(data)}`);
+      }
+
+      log(`  ✅ Job queued: ${data.job_id}`, "ok");
+      log(`  Response: ${JSON.stringify(data, null, 2)}`, "data");
+      return data;
+    }
+
+    // ── Step 2: Poll Job Status ─────────────────────────────────────────
+    async function pollStatus(jobId) {
+      log(`\n[2/3] Polling job status...`, "step");
+
+      const maxAttempts = 60; // 5 phút (mỗi 5s)
+      for (let i = 1; i <= maxAttempts; i++) {
+        await sleep(5000);
+
+        const response = await fetch(`${BASE_URL}/job/${jobId}/status`, {
+          headers: { "Authorization": `Bearer ${API_KEY}` },
+        });
+
+        const data = await response.json();
+        log(`  Attempt ${i}: status = ${data.status}`);
+
+        if (data.status === "completed") {
+          log(`  ✅ Job completed!`, "ok");
+          return data;
+        }
+
+        if (data.status === "failed") {
+          log(`  ❌ Job failed: ${data.error || "unknown"}`, "err");
+          throw new Error(`Job failed: ${data.error || "unknown"}`);
+        }
+
+        setStatus("loading", `<span class="loading-text">⏳ Đang xử lý... (${i * 5}s elapsed, status: ${data.status})</span>`);
+      }
+
+      throw new Error("Timeout: Job không hoàn thành sau 5 phút");
+    }
+
+    // ── Step 3: Get Result ──────────────────────────────────────────────
+    async function getResult(jobId) {
+      log(`\n[3/3] Fetching result...`, "step");
+
+      const response = await fetch(`${BASE_URL}/job/${jobId}/result`, {
+        headers: { "Authorization": `Bearer ${API_KEY}` },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        log(`  ❌ Error: ${JSON.stringify(data)}`, "err");
+        throw new Error(`Result fetch failed: ${data.message || data.error}`);
+      }
+
+      log(`  ✅ Result received!`, "ok");
+      log(`  Type: ${data.type}`, "data");
+
+      // export_url có thể là string (PDF) hoặc array (PNG)
+      const urls = Array.isArray(data.export_url) ? data.export_url : [data.export_url];
+      log(`  Files: ${urls.length}`, "data");
+      urls.forEach((url, i) => log(`  [${i + 1}] ${url}`, "data"));
+
+      return { ...data, urls };
+    }
+
+    // ── Main flow ───────────────────────────────────────────────────────
+    async function runTest() {
+      const templateId = document.getElementById("templateId").value.trim();
+      const topic = document.getElementById("topicInput").value.trim();
+      const output = document.getElementById("outputFormat").value;
+      const btn = document.getElementById("generateBtn");
+
+      if (!templateId || !topic) {
+        setStatus("error", "⚠️ Vui lòng nhập Template ID và chủ đề!");
+        return;
+      }
+
+      clearLog();
+      btn.disabled = true;
+      btn.textContent = "⏳ Đang xử lý...";
+      setStatus("loading", '<span class="loading-text">🔄 Đang gửi request tới Contentdrips...</span>');
+
+      try {
+        // Step 1: Submit
+        const submitData = await submitJob(templateId, topic, output);
+        const jobId = submitData.job_id;
+
+        if (!jobId) throw new Error("Không nhận được job_id");
+
+        // Step 2: Poll
+        await pollStatus(jobId);
+
+        // Step 3: Get result
+        const result = await getResult(jobId);
+
+        // Render gallery
+        const gallery = document.getElementById("gallery");
+        result.urls.forEach((url, i) => {
+          if (url.endsWith(".pdf")) {
+            const link = document.createElement("a");
+            link.href = url;
+            link.target = "_blank";
+            link.className = "btn btn-secondary";
+            link.textContent = `📄 Tải PDF`;
+            link.style.display = "inline-block";
+            link.style.marginTop = "12px";
+            gallery.appendChild(link);
+          } else {
+            const img = document.createElement("img");
+            img.src = url;
+            img.alt = `Slide ${i + 1}`;
+            img.title = `Click để mở slide ${i + 1}`;
+            img.onclick = () => window.open(url, "_blank");
+            gallery.appendChild(img);
+          }
+        });
+
+        setStatus("success", `✅ Sinh thành công! ${result.urls.length} file(s) được tạo.`);
+        log(`\n🎉 Done!`, "ok");
+
+      } catch (err) {
+        console.error(err);
+        setStatus("error", `❌ Lỗi: ${err.message}`);
+        log(`\n❌ FAILED: ${err.message}`, "err");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "🚀 Sinh Carousel";
+      }
+    }
+  </script>
+</body>
+</html>

@@ -195,3 +195,207 @@ export function mockOutline(event, outputType = "slide") {
     },
   };
 }
+
+// ─── Gemini AI sinh structured INFOGRAPHIC blocks JSON ────────────────────────
+
+/**
+ * Dùng Gemini AI sinh infographic blocks JSON từ nội dung user nhập.
+ * Trả về cấu trúc tương thích MOCK_INFOGRAPHIC_DATA.
+ * Mỗi block có thêm `image_suggestion` (tiếng Anh) để search ảnh Wikimedia.
+ *
+ * @param {string} userText - Nội dung lịch sử user nhập
+ * @returns {Object|null} - { title, template, blocks[] } hoặc null nếu lỗi
+ */
+export async function generateInfographicWithGemini(userText) {
+  const prompt = buildInfographicPrompt(userText);
+
+  try {
+    const response = await fetch(GEMINI_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.4,
+          responseMimeType: "application/json",
+        },
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Gemini API error: ${response.status}`);
+    }
+
+    const result = await response.json();
+    const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!text) {
+      throw new Error("Gemini trả về rỗng");
+    }
+
+    const infographicData = JSON.parse(text);
+
+    // Validate cơ bản
+    if (!infographicData.title || !Array.isArray(infographicData.blocks) || infographicData.blocks.length === 0) {
+      throw new Error("Gemini không trả về infographic data hợp lệ");
+    }
+
+    // Đảm bảo có template
+    infographicData.template = infographicData.template || "template1";
+
+    return infographicData;
+  } catch (error) {
+    console.error("Gemini infographic error, fallback to null:", error);
+    return null;
+  }
+}
+
+/**
+ * Trích xuất image_suggestion từ các blocks để gọi Media Service.
+ * Trả về mảng { slide_order, image_suggestion } phù hợp với GenerateAssetsRequestV2.
+ *
+ * @param {Array} blocks - Mảng blocks từ Gemini
+ * @returns {Array<{slide_order: number, image_suggestion: string}>}
+ */
+export function extractImageSuggestionsFromBlocks(blocks) {
+  const suggestions = [];
+
+  for (const block of blocks) {
+    // Chỉ lấy block có image_suggestion
+    if (block.image_suggestion) {
+      suggestions.push({
+        slide_order: block.block_order,
+        image_suggestion: block.image_suggestion,
+      });
+    }
+
+    // Key figures: mỗi nhân vật có image_suggestion riêng
+    if (block.block_type === "key_figures" && Array.isArray(block.figures)) {
+      block.figures.forEach((fig, idx) => {
+        if (fig.image_suggestion) {
+          suggestions.push({
+            slide_order: block.block_order * 100 + idx + 1, // unique order: 701, 702, ...
+            image_suggestion: fig.image_suggestion,
+          });
+        }
+      });
+    }
+
+    // Gallery: mỗi ảnh có image_suggestion riêng
+    if (block.block_type === "gallery" && Array.isArray(block.images)) {
+      block.images.forEach((img, idx) => {
+        if (img.image_suggestion) {
+          suggestions.push({
+            slide_order: block.block_order * 100 + idx + 1,
+            image_suggestion: img.image_suggestion,
+          });
+        }
+      });
+    }
+  }
+
+  return suggestions;
+}
+
+/**
+ * Gán image_url từ kết quả Media Service vào blocks.
+ * Cập nhật in-place các block có image_suggestion tương ứng.
+ *
+ * @param {Array} blocks - Mảng blocks cần gán ảnh
+ * @param {Array} assets - Kết quả từ generateAssets: [{ slide_order, image_url, ... }]
+ */
+export function assignImagesToBlocks(blocks, assets) {
+  const assetMap = new Map(assets.map(a => [a.slide_order, a]));
+
+  for (const block of blocks) {
+    // Block-level image_url
+    const blockAsset = assetMap.get(block.block_order);
+    if (blockAsset && blockAsset.source !== "fallback") {
+      block.image_url = blockAsset.image_url;
+    }
+
+    // Key figures: gán ảnh cho từng nhân vật
+    if (block.block_type === "key_figures" && Array.isArray(block.figures)) {
+      block.figures.forEach((fig, idx) => {
+        const figAsset = assetMap.get(block.block_order * 100 + idx + 1);
+        if (figAsset && figAsset.source !== "fallback") {
+          fig.image_url = figAsset.image_url;
+        }
+      });
+    }
+
+    // Gallery: gán url cho từng ảnh
+    if (block.block_type === "gallery" && Array.isArray(block.images)) {
+      block.images.forEach((img, idx) => {
+        const imgAsset = assetMap.get(block.block_order * 100 + idx + 1);
+        if (imgAsset && imgAsset.source !== "fallback") {
+          img.url = imgAsset.image_url;
+        }
+      });
+    }
+  }
+}
+
+function buildInfographicPrompt(userText) {
+  return `Bạn là chuyên gia lịch sử Việt Nam và thiết kế infographic.
+
+Nhiệm vụ: Phân tích nội dung lịch sử bên dưới và tạo dữ liệu cho 1 infographic dạng cuộn dọc.
+
+NỘI DUNG LỊCH SỬ:
+"""
+${userText}
+"""
+
+Trả về 1 JSON object với cấu trúc:
+{
+  "title": "Tiêu đề infographic",
+  "template": "template1",
+  "blocks": [ ... ]
+}
+
+MỖI BLOCK trong mảng blocks phải có "block_order" (số thứ tự) và "block_type" (loại block).
+MỖI BLOCK cần có ảnh phải có thêm "image_suggestion" bằng TIẾNG ANH để search ảnh Wikimedia.
+
+CÁC BLOCK_TYPE HỖ TRỢ:
+
+1. "header" — Block tiêu đề hero:
+   { block_order, block_type: "header", title, subtitle, era, image_suggestion: "English keyword for hero image" }
+
+2. "intro" — Đoạn văn giới thiệu:
+   { block_order, block_type: "intro", content, image_suggestion: "English keyword for intro image" }
+
+3. "timeline" — Dòng thời gian dọc (3-6 sự kiện):
+   { block_order, block_type: "timeline", title, events: [{ year, title, description }], image_suggestion: "English keyword" }
+
+4. "stats" — Các con số nổi bật (3-4 items):
+   { block_order, block_type: "stats", title, items: [{ value, label, icon }] }
+   icon là emoji: "🏯", "⏳", "⚔️", "⛓️", "👥", "🗺️", "📜", "🎯", "🔥", "⭐"
+
+5. "quote" — Trích dẫn lịch sử:
+   { block_order, block_type: "quote", quote_text, author, context }
+
+6. "comparison" — So sánh 2 cột:
+   { block_order, block_type: "comparison", title, image_suggestion: "English keyword", left: { heading, items: ["..."] }, right: { heading, items: ["..."] } }
+
+7. "key_figures" — Nhân vật chính (2-4 người):
+   { block_order, block_type: "key_figures", title, figures: [{ name, role, image_suggestion: "Person name in English for wiki search" }] }
+
+8. "gallery" — Lưới ảnh lịch sử (2-3 ảnh):
+   { block_order, block_type: "gallery", title, images: [{ caption: "Mô tả tiếng Việt", image_suggestion: "English keyword for wiki image" }] }
+
+9. "footer" — Footer + nguồn:
+   { block_order, block_type: "footer", title: "Ý nghĩa lịch sử", sources: ["..."], credits: "SuKyToanThu AI — Tạo bởi trí tuệ nhân tạo" }
+
+YÊU CẦU:
+- Tạo 7-9 blocks đa dạng block_type
+- Block đầu tiên PHẢI là "header", block cuối PHẢI là "footer"
+- PHẢI có 1 block "gallery" với 2-3 ảnh
+- Nội dung chính xác lịch sử, dựa trên nội dung user cung cấp
+- Viết bằng tiếng Việt (trừ image_suggestion phải bằng tiếng Anh)
+- image_suggestion phải cụ thể, mô tả rõ ràng để tìm được ảnh trên Wikimedia Commons
+  Ví dụ: "Dien Bien Phu battle 1954", "Vo Nguyen Giap general", "French Indochina map"
+- Tạo nội dung chi tiết, có số liệu cụ thể nếu có thể
+- Trích xuất quote nếu có trong nội dung, nếu không có thì tự tạo quote phù hợp bối cảnh
+
+Trả về CHỈ JSON object, không có text khác.`;
+}

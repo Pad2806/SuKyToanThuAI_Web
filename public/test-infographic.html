@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test: LLM → SVG Infographic</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0f0f0f;
+      color: #e0e0e0;
+      min-height: 100vh;
+    }
+
+    .app {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      background: linear-gradient(135deg, #d4a574, #e8c99b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: #888;
+      font-size: 0.85rem;
+      margin-bottom: 24px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .control-group label {
+      font-size: 0.7rem;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    select, input[type="text"] {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      color: #e0e0e0;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-family: inherit;
+      min-width: 200px;
+    }
+
+    input[type="text"] {
+      min-width: 350px;
+    }
+
+    select:focus, input:focus {
+      outline: none;
+      border-color: #d4a574;
+    }
+
+    .btn {
+      padding: 10px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #d4a574, #c49460);
+      color: #1a0e08;
+    }
+
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(212, 165, 116, 0.3); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .btn-secondary {
+      background: #2a2a2a;
+      color: #e0e0e0;
+      border: 1px solid #444;
+    }
+
+    .btn-secondary:hover { background: #333; }
+
+    .status {
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 0.8rem;
+      display: none;
+    }
+
+    .status.loading {
+      display: block;
+      background: rgba(212, 165, 116, 0.1);
+      border: 1px solid rgba(212, 165, 116, 0.3);
+      color: #d4a574;
+    }
+
+    .status.error {
+      display: block;
+      background: rgba(220, 38, 38, 0.1);
+      border: 1px solid rgba(220, 38, 38, 0.3);
+      color: #fca5a5;
+    }
+
+    .status.success {
+      display: block;
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      color: #86efac;
+    }
+
+    .result-area {
+      margin-top: 16px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 0;
+    }
+
+    .tab {
+      padding: 8px 16px;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
+      color: #888;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-family: inherit;
+    }
+
+    .tab.active {
+      background: #1e1e1e;
+      color: #d4a574;
+      border-color: #444;
+    }
+
+    .preview-container {
+      background: #1e1e1e;
+      border: 1px solid #444;
+      border-radius: 0 8px 8px 8px;
+      padding: 24px;
+      min-height: 400px;
+      overflow: auto;
+    }
+
+    #svgPreview {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    #svgPreview svg {
+      max-width: 100%;
+      height: auto;
+    }
+
+    #codePreview {
+      display: none;
+    }
+
+    #codePreview pre {
+      background: #111;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 0.75rem;
+      line-height: 1.5;
+      color: #a0a0a0;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .meta {
+      display: flex;
+      gap: 16px;
+      margin-top: 12px;
+      font-size: 0.7rem;
+      color: #666;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .loading-text { animation: pulse 1.5s infinite; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>🧪 Test: LLM → SVG Infographic</h1>
+    <p class="subtitle">Proof of Concept — Dùng Gemini sinh trực tiếp SVG Infographic từ text lịch sử</p>
+
+    <div class="controls">
+      <div class="control-group">
+        <label>Model</label>
+        <select id="modelSelect">
+          <option value="gemini-2.5-flash">Gemini 2.5 Flash (Nhanh, đủ tốt)</option>
+          <option value="gemini-2.5-pro">Gemini 2.5 Pro (Chậm hơn, chất lượng cao)</option>
+          <option value="gemini-2.0-flash">Gemini 2.0 Flash (Cũ, nhanh)</option>
+          <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash Lite (Backup nhẹ)</option>
+          <option value="gemini-2.0-flash-lite">Gemini 2.0 Flash Lite (Backup nhẹ)</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label>Chủ đề lịch sử</label>
+        <input type="text" id="topicInput" value="Khởi nghĩa Hai Bà Trưng (40-43 SCN)" placeholder="Nhập chủ đề...">
+      </div>
+
+      <button class="btn btn-primary" id="generateBtn" onclick="generate()">
+        🚀 Sinh Infographic
+      </button>
+    </div>
+
+    <div class="status" id="status"></div>
+
+    <div class="result-area" id="resultArea" style="display: none;">
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('preview')">👁️ Preview</button>
+        <button class="tab" onclick="switchTab('code')">📄 SVG Code</button>
+      </div>
+
+      <div class="preview-container">
+        <div id="svgPreview"></div>
+        <div id="codePreview"><pre id="codeContent"></pre></div>
+      </div>
+
+      <div class="meta" id="metaInfo"></div>
+
+      <div class="actions">
+        <button class="btn btn-secondary" onclick="downloadSVG()">📥 Tải SVG</button>
+        <button class="btn btn-secondary" onclick="downloadPNG()">🖼️ Tải PNG</button>
+        <button class="btn btn-secondary" onclick="generate()">🔄 Thử lại</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_KEY = "AIzaSyB8gyYN1djzMvV2LGk4S--cRrzLtaub2nM";
+    let lastSVG = "";
+    let startTime = 0;
+
+    function setStatus(type, msg) {
+      const el = document.getElementById("status");
+      el.className = `status ${type}`;
+      el.innerHTML = msg;
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll(".tab").forEach((t, i) => {
+        t.classList.toggle("active", (tab === "preview" && i === 0) || (tab === "code" && i === 1));
+      });
+      document.getElementById("svgPreview").style.display = tab === "preview" ? "flex" : "none";
+      document.getElementById("codePreview").style.display = tab === "code" ? "block" : "none";
+    }
+
+    function buildPrompt(topic) {
+      return `Bạn là một chuyên gia thiết kế infographic và lịch sử Việt Nam.
+
+Hãy tạo một SVG infographic HOÀN CHỈNH về chủ đề: "${topic}"
+
+YÊU CẦU KỸ THUẬT SVG:
+1. Kích thước: width="800" height="2400" (infographic dọc dài)
+2. Nền tối sang trọng: gradient từ #1a0e08 (đen nâu) → #2c1810 (nâu sẫm)
+3. Màu accent: #d4a574 (vàng đồng), #e8c99b (vàng nhạt)
+4. Màu text chính: #f5f0e8 (cream)
+5. Font: font-family="Georgia, serif" cho tiêu đề, font-family="Arial, sans-serif" cho nội dung
+6. Sử dụng <text> với word-wrap thủ công (chia thành nhiều <tspan> nếu text dài, mỗi tspan một dòng, dy="1.3em")
+
+CẤU TRÚC INFOGRAPHIC (từ trên xuống dưới):
+
+SECTION 1 - HEADER (y: 0-300):
+- Tiêu đề lớn (font-size 42, bold, màu vàng đồng)
+- Subtitle nhỏ (thời kỳ, năm)
+- Đường kẻ trang trí (═══ ◆ ═══)
+- Viền khung trang trí xung quanh
+
+SECTION 2 - BỐI CẢNH (y: 300-650):
+- Icon/hình trang trí nhỏ
+- Tiêu đề section
+- 2-3 đoạn văn ngắn về bối cảnh lịch sử
+- Mỗi đoạn max 45 ký tự/dòng
+
+SECTION 3 - TIMELINE (y: 650-1200):
+- Đường timeline dọc chạy giữa
+- 4-5 mốc thời gian quan trọng
+- Mỗi mốc: năm (circle) + sự kiện (text bên cạnh)
+- Xen kẽ trái/phải
+
+SECTION 4 - SỐ LIỆU NỔI BẬT (y: 1200-1550):
+- 3-4 ô số liệu nổi bật (quân số, diện tích, thời gian...)
+- Mỗi ô: số lớn (font-size 36) + nhãn nhỏ bên dưới
+- Xếp ngang thành 1 hàng
+
+SECTION 5 - NHÂN VẬT CHÍNH (y: 1550-1900):
+- 2-3 nhân vật quan trọng
+- Mỗi nhân vật: hình tròn placeholder + tên + vai trò
+- Layout ngang
+
+SECTION 6 - TRÍCH DẪN (y: 1900-2100):
+- Một câu trích dẫn nổi tiếng (nếu có) hoặc đánh giá sử học
+- Dấu ngoặc kép lớn trang trí
+- Tên tác giả
+
+SECTION 7 - KẾT LUẬN (y: 2100-2400):
+- Ý nghĩa lịch sử (3-4 bullets)
+- Footer với nguồn tham khảo
+- Logo/watermark nhỏ
+
+QUY TẮC QUAN TRỌNG:
+- PHẢI trả về CHỈ code SVG, không có text giải thích
+- Bắt đầu bằng <svg và kết thúc bằng </svg>
+- Nội dung PHẢI bằng tiếng Việt, chính xác lịch sử
+- Text PHẢI dùng <tspan> chia dòng (max 45 ký tự/dòng)
+- Dùng <defs> cho gradient, pattern
+- Thêm các đường kẻ trang trí giữa các section
+- KHÔNG dùng foreignObject (không tương thích)
+- KHÔNG dùng <image> tag (chúng ta chỉ dùng vector)
+
+Trả về SVG code ngay, không giải thích gì thêm.`;
+    }
+
+    // Danh sách model fallback khi bị 503
+    const FALLBACK_MODELS = [
+      "gemini-2.5-flash",
+      "gemini-2.0-flash",
+      "gemini-2.5-flash-lite",
+      "gemini-2.0-flash-lite",
+      "gemini-2.5-pro",
+    ];
+
+    async function callGeminiAPI(model, topic) {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${API_KEY}`;
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: buildPrompt(topic) }] }],
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 65536,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        const err = new Error(`API Error ${response.status}: ${errData.error?.message || response.statusText}`);
+        err.status = response.status;
+        throw err;
+      }
+
+      return await response.json();
+    }
+
+    async function generate() {
+      const selectedModel = document.getElementById("modelSelect").value;
+      const topic = document.getElementById("topicInput").value.trim();
+
+      if (!topic) {
+        setStatus("error", "⚠️ Vui lòng nhập chủ đề!");
+        return;
+      }
+
+      const btn = document.getElementById("generateBtn");
+      btn.disabled = true;
+      btn.textContent = "⏳ Đang sinh...";
+      startTime = Date.now();
+
+      // Xây danh sách thử: model đang chọn trước, rồi fallback
+      const modelsToTry = [selectedModel, ...FALLBACK_MODELS.filter(m => m !== selectedModel)];
+
+      for (let i = 0; i < modelsToTry.length; i++) {
+        const model = modelsToTry[i];
+        const attempt = i + 1;
+
+        setStatus("loading", `<span class="loading-text">🔄 [Attempt ${attempt}/${modelsToTry.length}] Đang gọi ${model}... Có thể mất 15-60 giây.</span>`);
+
+        try {
+          const result = await callGeminiAPI(model, topic);
+          const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+          const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+          const tokens = result.usageMetadata;
+
+          if (!text) throw new Error("Gemini trả về rỗng");
+
+          // Extract SVG from response (strip markdown fences if any)
+          let svgCode = text;
+          const svgMatch = svgCode.match(/<svg[\s\S]*<\/svg>/i);
+          if (svgMatch) {
+            svgCode = svgMatch[0];
+          } else {
+            throw new Error("Không tìm thấy thẻ <svg> trong response");
+          }
+
+          lastSVG = svgCode;
+
+          // Render preview
+          document.getElementById("svgPreview").innerHTML = svgCode;
+          document.getElementById("codeContent").textContent = svgCode;
+          document.getElementById("resultArea").style.display = "block";
+
+          // Meta
+          const promptTokens = tokens?.promptTokenCount || "?";
+          const outputTokens = tokens?.candidatesTokenCount || "?";
+          document.getElementById("metaInfo").innerHTML =
+            `<span>⏱ ${elapsed}s</span>` +
+            `<span>📝 Prompt: ${promptTokens} tokens</span>` +
+            `<span>📤 Output: ${outputTokens} tokens</span>` +
+            `<span>🤖 ${model}</span>` +
+            `<span>📐 SVG: ${(svgCode.length / 1024).toFixed(1)} KB</span>` +
+            (attempt > 1 ? `<span>🔄 Fallback lần ${attempt}</span>` : "");
+
+          setStatus("success", `✅ Sinh thành công trong ${elapsed}s bằng ${model}!${attempt > 1 ? " (fallback)" : ""}`);
+          btn.disabled = false;
+          btn.textContent = "🚀 Sinh Infographic";
+          return; // Thành công → thoát
+
+        } catch (err) {
+          console.warn(`Model ${model} failed:`, err.message);
+
+          // Nếu 503/429 (overload/rate-limit) và còn model khác → thử tiếp
+          if ((err.status === 503 || err.status === 429) && i < modelsToTry.length - 1) {
+            setStatus("loading", `<span class="loading-text">⚠️ ${model} quá tải (${err.status}). Chuyển sang ${modelsToTry[i+1]}...</span>`);
+            await new Promise(r => setTimeout(r, 1500)); // chờ 1.5s
+            continue;
+          }
+
+          // Hết model hoặc lỗi khác
+          setStatus("error", `❌ Lỗi: ${err.message}`);
+          break;
+        }
+      }
+
+      btn.disabled = false;
+      btn.textContent = "🚀 Sinh Infographic";
+    }
+
+    function downloadSVG() {
+      if (!lastSVG) return;
+      const blob = new Blob([lastSVG], { type: "image/svg+xml" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "infographic.svg";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function downloadPNG() {
+      if (!lastSVG) return;
+
+      const svgEl = document.querySelector("#svgPreview svg");
+      if (!svgEl) return;
+
+      const w = parseInt(svgEl.getAttribute("width")) || 800;
+      const h = parseInt(svgEl.getAttribute("height")) || 2400;
+
+      const canvas = document.createElement("canvas");
+      canvas.width = w * 2;  // retina
+      canvas.height = h * 2;
+      const ctx = canvas.getContext("2d");
+      ctx.scale(2, 2);
+
+      const img = new Image();
+      const svgBlob = new Blob([lastSVG], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(svgBlob);
+
+      img.onload = () => {
+        ctx.drawImage(img, 0, 0, w, h);
+        URL.revokeObjectURL(url);
+
+        const a = document.createElement("a");
+        a.download = "infographic.png";
+        a.href = canvas.toDataURL("image/png");
+        a.click();
+      };
+
+      img.onerror = () => {
+        alert("Lỗi render PNG. Hãy tải SVG thay thế.");
+        URL.revokeObjectURL(url);
+      };
+
+      img.src = url;
+    }
+  </script>
+</body>
+</html>

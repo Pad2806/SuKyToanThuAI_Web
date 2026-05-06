@@ -1,14 +1,14 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaChartBar, FaBookOpen, FaMap, FaCloudUploadAlt, FaRocket } from "react-icons/fa";
-import { mockOutline, mockOutlineBW } from "../../api/contentApi";
-import { generateAssets } from "../../api/mediaApi";
+import { mockOutline, mockOutlineBW, generateInfographicWithGemini } from "../../api/contentApi";
+import { generateAssets, generateInfographicImages } from "../../api/mediaApi";
 import "../styles/WorkspaceScreen.css";
 
 const OUTPUT_OPTIONS = [
   { icon: <FaChartBar />, label: "Bài Slide", desc: "PowerPoint / PDF", type: "slide" },
   { icon: <FaBookOpen />, label: "Truyện tranh", desc: "Manga / Webtoon", type: "comic" },
-  { icon: <FaMap />, label: "Infographic", desc: "Timeline / Map", type: "slide" },
+  { icon: <FaMap />, label: "Infographic", desc: "Timeline / Map", type: "infographic" },
 ];
 
 const FILE_TYPES = ["PDF", "DOCX", "TXT", "PPTX", "JPG"];
@@ -61,6 +61,57 @@ export default function WorkspaceScreen({ setLoading, setLoadingMsg, setProjectD
 
       const outline = mockOutline(mockEvent, outputType);
       const slides = outline.data.slides || [];
+
+      // ── Nếu là Infographic → Gemini sinh blocks → 2 ảnh từ Media Service ──
+      if (outputType === "infographic") {
+        // Bước 1: Gemini sinh blocks JSON
+        setLoadingMsg("🤖 AI đang phân tích nội dung lịch sử...");
+        await sleep(300);
+
+        setLoadingMsg("📝 Đang sinh infographic từ nội dung...");
+        const infographicData = await generateInfographicWithGemini(text);
+
+        if (infographicData) {
+          // Bước 2: Trích keyword từ blocks header + intro
+          const headerBlock = infographicData.blocks.find(b => b.block_type === "header");
+          const introBlock = infographicData.blocks.find(b => b.block_type === "intro");
+          const headerKw = headerBlock?.image_suggestion || null;
+          const introKw = introBlock?.image_suggestion || null;
+
+          // Bước 3: Gọi endpoint riêng lấy 2 ảnh (truyền keyword trực tiếp)
+          setLoadingMsg("🖼️ Đang tìm ảnh minh họa từ Wikimedia...");
+
+          try {
+            const mediaResult = await generateInfographicImages(
+              infographicData.title, headerKw, introKw
+            );
+
+            if (mediaResult.success && mediaResult.data.images.length > 0) {
+              // Bước 4: Gán image_url vào block header + intro
+              const images = mediaResult.data.images;
+              for (const block of infographicData.blocks) {
+                const match = images.find(img => img.role === block.block_type);
+                if (match && match.source !== "fallback") {
+                  block.image_url = match.image_url;
+                }
+              }
+              setLoadingMsg(`🎨 Đã tìm ${mediaResult.data.total_found}/2 ảnh, đang hoàn thiện...`);
+            }
+          } catch (mediaError) {
+            console.warn("Media Service lỗi, tiếp tục không có ảnh:", mediaError);
+          }
+        }
+
+        setLoadingMsg("✨ Sắp hoàn thành...");
+        await sleep(300);
+
+        setProjectData({ outputType: "infographic", infographicData });
+        setLoading(false);
+        setLoadingMsg("");
+        setTimeout(() => navigate("/infographic"), 50);
+        return;
+      }
+
 
       // ── Bước 2: Gọi Media Service tìm ảnh ──────────────────────────
       setLoadingMsg("Đang tìm ảnh minh họa từ Wikimedia...");

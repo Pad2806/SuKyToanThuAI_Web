@@ -15,6 +15,7 @@ import AIScreen from "./user/pages/AIScreen";
 import AdminScreen from "./user/pages/AdminScreen";
 import ProfileScreen from "./user/pages/ProfileScreen";
 import SlidePreviewPage from "./user/pages/SlidePreviewPage";
+import InfographicScreen from "./user/pages/InfographicScreen";
 
 const DEFAULT_USER = {
   firstName: "Quang Thảo",
@@ -89,6 +90,7 @@ function AppContent() {
 
         <Route path="/login" element={<Auth />} />
         <Route path="/preview-slides" element={<SlidePreviewPage />} />
+        <Route path="/infographic" element={<InfographicScreen projectData={projectData} />} />
         <Route path="/admin" element={<Admin />} />
       </Routes>
     </div>
