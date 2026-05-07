@@ -1,77 +1,160 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../styles/ProfileScreen.css";
 
+import { getMeApi } from "../../../api/auth.api";
+import {
+  updateProfileApi,
+  changePasswordApi,
+} from "../../../api/user.api";
 const RECENT_ACTIVITY = [
-  { icon: "📊", type: "slide", title: "Khởi nghĩa Hai Bà Trưng",          time: "2 giờ trước" },
-  { icon: "📖", type: "comic", title: "Chiến thắng Điện Biên Phủ",         time: "Hôm qua" },
+  { icon: "📊", type: "slide", title: "Khởi nghĩa Hai Bà Trưng", time: "2 giờ trước" },
+  { icon: "📖", type: "comic", title: "Chiến thắng Điện Biên Phủ", time: "Hôm qua" },
   { icon: "📊", type: "slide", title: "Đế chế Mông Cổ – Thành Cát Tư Hãn", time: "1 tuần trước" },
-  { icon: "📖", type: "comic", title: "Đại phá quân Thanh",                  time: "2 tuần trước" },
+  { icon: "📖", type: "comic", title: "Đại phá quân Thanh", time: "2 tuần trước" },
 ];
-
-// ─── Password strength helper ───
+// ================= PASSWORD STRENGTH =================
 function getStrength(pw) {
   if (!pw) return 0;
   let score = 0;
-  if (pw.length >= 8)              score++;
-  if (/[A-Z]/.test(pw))           score++;
-  if (/[0-9]/.test(pw))           score++;
-  if (/[^A-Za-z0-9]/.test(pw))    score++;
-  return score; // 0-4
+  if (pw.length >= 8) score++;
+  if (/[A-Z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+  return score;
 }
 
 const STRENGTH_LABELS = ["", "Yếu", "Trung bình", "Mạnh", "Rất mạnh"];
-const STRENGTH_KEYS   = ["", "weak", "weak", "medium", "strong"];
+const STRENGTH_KEYS = ["", "weak", "weak", "medium", "strong"];
 
-export default function ProfileScreen({ user, setUser }) {
-  // ── Form state ──
+export default function ProfileScreen() {
+  // ================= STATE =================
   const [form, setForm] = useState({
-    firstName:   user?.firstName  ?? "Trương Như",
-    lastName:    user?.lastName   ?? "Quang Thảo",
-    email:       user?.email      ?? "thaotruong23082004@gmail.com",
-    phone:       user?.phone      ?? "0901 234 567",
-    birthYear:   user?.birthYear  ?? "2004",
-    gender:      user?.gender     ?? "male",
-    school:      user?.school     ?? "THPT Nguyễn Huệ",
-    grade:       user?.grade      ?? "12",
-    bio:         user?.bio        ?? "",
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    birthYear: "",
+    gender: "",
+    school: "",
+    grade: "",
+    bio: "",
+    createdAt: null,
+  });
+  function formatJoinDate(dateStr) {
+    if (!dateStr) return "Chưa rõ";
+
+    const date = new Date(dateStr);
+
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+
+    return `Tham gia tháng ${month}, ${year}`;
+  }
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const [pwForm, setPwForm] = useState({
+    current: "",
+    next: "",
+    confirm: "",
   });
 
-  const [saved,   setSaved]   = useState(false);
-  const [saving,  setSaving]  = useState(false);
-  const [pwForm,  setPwForm]  = useState({ current: "", next: "", confirm: "" });
   const [pwSaved, setPwSaved] = useState(false);
 
   const strength = getStrength(pwForm.next);
 
+  // ================= LOAD USER =================
+  useEffect(() => {
+    async function loadUser() {
+      try {
+        const res = await getMeApi();
+        const u = res.data;
+        console.log("CALL API");
+        console.log("DATA:", res.data);
+        const parts = (u.fullname || "").split(" ");
+
+        setForm({
+          firstName: parts.slice(-1).join("") || "",
+          lastName: parts.slice(0, -1).join(" ") || "",
+          email: u.email || "",
+          phone: u.phone || "",
+          birthYear: u.birthYear || "",
+          gender: u.gender || "male",
+          school: u.school || "",
+          grade: u.grade || "",
+          bio: u.bio || "",
+          createdAt: u.created_at || null,
+        });
+      } catch (err) {
+        console.log("Load user lỗi:", err);
+      }
+    }
+
+    loadUser();
+  }, []);
+
+  // ================= HANDLE CHANGE =================
   function handleChange(e) {
     setSaved(false);
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
   }
 
-  function handleSave(e) {
+  // ================= SAVE PROFILE =================
+  async function handleSave(e) {
     e.preventDefault();
     setSaving(true);
-    setTimeout(() => {
-      setUser?.({ ...form });
-      setSaving(false);
+
+    try {
+      await updateProfileApi({
+        fullname: `${form.lastName} ${form.firstName}`,
+        phone: form.phone,
+        birthYear: form.birthYear,
+        gender: form.gender,
+        school: form.school,
+        grade: form.grade,
+        bio: form.bio,
+      });
+
       setSaved(true);
-    }, 800);
+    } catch (err) {
+      alert("Cập nhật thất bại");
+    } finally {
+      setSaving(false);
+    }
   }
 
-  function handlePwSave(e) {
+  // ================= CHANGE PASSWORD =================
+  async function handlePwSave(e) {
     e.preventDefault();
-    if (pwForm.next !== pwForm.confirm) return alert("Mật khẩu xác nhận không khớp!");
-    if (strength < 2) return alert("Mật khẩu quá yếu!");
-    setPwSaved(true);
-    setPwForm({ current: "", next: "", confirm: "" });
-    setTimeout(() => setPwSaved(false), 3000);
+
+    if (pwForm.next !== pwForm.confirm) {
+      return alert("Mật khẩu không khớp!");
+    }
+
+    if (strength < 2) {
+      return alert("Mật khẩu quá yếu!");
+    }
+
+    try {
+      await changePasswordApi({
+        current_password: pwForm.current,
+        new_password: pwForm.next,
+      });
+
+      setPwSaved(true);
+      setPwForm({ current: "", next: "", confirm: "" });
+    } catch (err) {
+      alert(err.response?.data?.detail || "Đổi mật khẩu thất bại");
+    }
   }
 
+  // ================= AVATAR =================
   const initials = `${form.firstName?.[0] ?? ""}${form.lastName?.[0] ?? ""}`.toUpperCase();
 
+  // ================= UI =================
   return (
     <div className="profile">
-      {/* ── Hero banner ── */}
+      {/* HERO */}
       <div className="profile__hero">
         <div className="profile__avatar-wrap">
           <div className="profile__avatar">
@@ -79,181 +162,124 @@ export default function ProfileScreen({ user, setUser }) {
             <div className="profile__avatar-overlay">📷</div>
           </div>
         </div>
+
         <div className="profile__hero-info">
           <div className="profile__hero-role">Thành viên</div>
+
           <h1 className="profile__hero-name">
             {form.firstName} {form.lastName}
           </h1>
+
           <div className="profile__hero-meta">
             <span>{form.email}</span>
             <span>{form.school || "Chưa cập nhật trường"}</span>
-            <span>Tham gia tháng 1, 2025</span>
+            <span>{formatJoinDate(form.createdAt)}</span>
           </div>
         </div>
       </div>
 
-      {/* ── Body ── */}
+      {/* BODY */}
       <div className="profile__body">
-        {/* ── LEFT COLUMN ── */}
+        {/* LEFT */}
         <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
 
-          {/* Card: Thông tin cá nhân */}
+          {/* ===== PROFILE FORM ===== */}
           <div className="profile__card">
             <div className="profile__card-header">
               <div>
                 <div className="profile__card-title">Thông tin cá nhân</div>
-                <div className="profile__card-subtitle">Cập nhật họ tên, liên lạc và thông tin học tập</div>
+                <div className="profile__card-subtitle">
+                  Cập nhật họ tên, liên lạc và thông tin học tập
+                </div>
               </div>
             </div>
 
             <form onSubmit={handleSave}>
               <div className="profile__form">
 
-                {/* Row 1: first + last name */}
                 <div className="profile__form-row">
                   <div className="profile__field">
                     <label className="profile__label">Họ</label>
-                    <input
-                      className="profile__input"
-                      name="lastName"
-                      value={form.lastName}
-                      onChange={handleChange}
-                      placeholder="Nguyễn"
-                    />
+                    <input className="profile__input" name="lastName" value={form.lastName} onChange={handleChange} />
                   </div>
+
                   <div className="profile__field">
                     <label className="profile__label">Tên</label>
-                    <input
-                      className="profile__input"
-                      name="firstName"
-                      value={form.firstName}
-                      onChange={handleChange}
-                      placeholder="Văn A"
-                    />
+                    <input className="profile__input" name="firstName" value={form.firstName} onChange={handleChange} />
                   </div>
                 </div>
 
-                {/* Row 2: email + phone */}
                 <div className="profile__form-row">
                   <div className="profile__field">
                     <label className="profile__label">Email</label>
                     <div className="profile__input-wrap">
                       <span className="profile__input-icon">✉️</span>
-                      <input
-                        className="profile__input"
-                        type="email"
-                        name="email"
-                        value={form.email}
-                        onChange={handleChange}
-                        placeholder="email@example.com"
-                      />
+                      <input className="profile__input" value={form.email} disabled />
                     </div>
                   </div>
+
                   <div className="profile__field">
                     <label className="profile__label">Số điện thoại</label>
                     <div className="profile__input-wrap">
                       <span className="profile__input-icon">📱</span>
-                      <input
-                        className="profile__input"
-                        type="tel"
-                        name="phone"
-                        value={form.phone}
-                        onChange={handleChange}
-                        placeholder="09xx xxx xxx"
-                      />
+                      <input className="profile__input" name="phone" value={form.phone} onChange={handleChange} />
                     </div>
                   </div>
                 </div>
 
-                {/* Row 3: birth year + gender */}
                 <div className="profile__form-row">
                   <div className="profile__field">
                     <label className="profile__label">Năm sinh</label>
-                    <input
-                      className="profile__input"
-                      type="number"
-                      name="birthYear"
-                      value={form.birthYear}
-                      onChange={handleChange}
-                      placeholder="2005"
-                      min="1950"
-                      max="2015"
-                    />
+                    <input className="profile__input" name="birthYear" value={form.birthYear} onChange={handleChange} />
                   </div>
+
                   <div className="profile__field">
                     <label className="profile__label">Giới tính</label>
-                    <select
-                      className="profile__select"
-                      name="gender"
-                      value={form.gender}
-                      onChange={handleChange}
-                    >
+                    <select className="profile__select" name="gender" value={form.gender} onChange={handleChange}>
                       <option value="male">Nam</option>
                       <option value="female">Nữ</option>
-                      <option value="other">Khác</option>
                     </select>
                   </div>
                 </div>
 
-                {/* Row 4: school + grade */}
-                <div className="profile__form-row">
-                  <div className="profile__field">
-                    <label className="profile__label">Trường học</label>
-                    <div className="profile__input-wrap">
-                      <span className="profile__input-icon">🏫</span>
-                      <input
-                        className="profile__input"
-                        name="school"
-                        value={form.school}
-                        onChange={handleChange}
-                        placeholder="Tên trường..."
-                      />
-                    </div>
-                  </div>
-                  <div className="profile__field">
-                    <label className="profile__label">Lớp / Khối</label>
-                    <select
-                      className="profile__select"
-                      name="grade"
-                      value={form.grade}
-                      onChange={handleChange}
-                    >
-                      {["6","7","8","9","10","11","12","Đại học","Khác"].map((g) => (
-                        <option key={g} value={g}>{g}</option>
-                      ))}
-                    </select>
+                <div className="profile__field">
+                  <label className="profile__label">Trường</label>
+                  <div className="profile__input-wrap">
+                    <span className="profile__input-icon">🏫</span>
+                    <input className="profile__input" name="school" value={form.school} onChange={handleChange} />
                   </div>
                 </div>
-
-                {/* Bio */}
-                <div className="profile__field profile__field--full">
-                  <label className="profile__label">Giới thiệu bản thân</label>
-                  <textarea
-                    className="profile__textarea"
-                    name="bio"
-                    value={form.bio}
+                <div className="profile__field">
+                  <label className="profile__label">Lớp / Khối</label>
+                  <select
+                    className="profile__select"
+                    name="grade"
+                    value={form.grade}
                     onChange={handleChange}
-                    placeholder="Chia sẻ đôi điều về bạn và sở thích học lịch sử..."
-                  />
+                  >
+                    {["6", "7", "8", "9", "10", "11", "12", "Đại học", "Khác"].map((g) => (
+                      <option key={g} value={g}>{g}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
-
+              <div className="profile__field profile__field--full">
+                <label className="profile__label">Giới thiệu bản thân</label>
+                <textarea className="profile__textarea" name="bio" value={form.bio} onChange={handleChange} />
+              </div>
               <div className="profile__form-footer">
                 <span className={`profile__save-hint ${saved ? "profile__save-hint--success" : ""}`}>
                   {saved ? "✓ Đã lưu thành công!" : "Thay đổi chưa được lưu"}
                 </span>
-                <button
-                  type="submit"
-                  className="profile__btn-save"
-                  disabled={saving}
-                >
+
+                <button type="submit" className="profile__btn-save" disabled={saving}>
                   {saving ? "⏳ Đang lưu..." : "💾 Lưu thay đổi"}
                 </button>
               </div>
             </form>
           </div>
 
-          {/* Card: Đổi mật khẩu */}
+          {/* ===== PASSWORD ===== */}
           <div className="profile__card">
             <div className="profile__card-header">
               <div>
@@ -266,68 +292,35 @@ export default function ProfileScreen({ user, setUser }) {
               <div className="profile__password-form">
                 <div className="profile__field">
                   <label className="profile__label">Mật khẩu hiện tại</label>
-                  <input
-                    className="profile__input"
-                    type="password"
+                  <input className="profile__input" type="password" placeholder="••••••••"
                     value={pwForm.current}
-                    onChange={(e) => setPwForm((f) => ({ ...f, current: e.target.value }))}
-                    placeholder="••••••••"
+                    onChange={(e) => setPwForm({ ...pwForm, current: e.target.value })}
                   />
                 </div>
                 <div className="profile__field">
                   <label className="profile__label">Mật khẩu mới</label>
-                  <input
-                    className="profile__input"
-                    type="password"
+                  <input className="profile__input" type="password" placeholder="••••••••"
                     value={pwForm.next}
-                    onChange={(e) => { setPwSaved(false); setPwForm((f) => ({ ...f, next: e.target.value })); }}
-                    placeholder="••••••••"
+                    onChange={(e) => setPwForm({ ...pwForm, next: e.target.value })}
                   />
-                  {pwForm.next && (
-                    <>
-                      <div className="profile__password-strength">
-                        {[1,2,3,4].map((i) => (
-                          <div
-                            key={i}
-                            className={`profile__strength-bar ${i <= strength ? `profile__strength-bar--${STRENGTH_KEYS[strength]}` : ""}`}
-                          />
-                        ))}
-                      </div>
-                      <div style={{ fontSize: "0.72rem", color: "var(--text-dim)", marginTop: 2 }}>
-                        Độ mạnh: <span style={{ color: strength >= 3 ? "var(--green-light)" : strength >= 2 ? "var(--gold)" : "#D4846B" }}>
-                          {STRENGTH_LABELS[strength]}
-                        </span>
-                      </div>
-                    </>
-                  )}
                 </div>
                 <div className="profile__field">
                   <label className="profile__label">Xác nhận mật khẩu mới</label>
-                  <input
-                    className="profile__input"
-                    type="password"
+                  <input className="profile__input" type="password" placeholder="••••••••"
                     value={pwForm.confirm}
-                    onChange={(e) => setPwForm((f) => ({ ...f, confirm: e.target.value }))}
-                    placeholder="••••••••"
+                    onChange={(e) => setPwForm({ ...pwForm, confirm: e.target.value })}
                   />
-                  {pwForm.confirm && pwForm.next !== pwForm.confirm && (
-                    <div style={{ fontSize: "0.72rem", color: "#D4846B", marginTop: 2 }}>Mật khẩu không khớp</div>
-                  )}
-                </div>
-              </div>
 
-              <div className="profile__form-footer">
-                <span className={`profile__save-hint ${pwSaved ? "profile__save-hint--success" : ""}`}>
-                  {pwSaved ? "✓ Mật khẩu đã được cập nhật!" : ""}
-                </span>
-                <button type="submit" className="profile__btn-save">
-                  🔒 Đổi mật khẩu
-                </button>
+                  <div>Độ mạnh: {STRENGTH_LABELS[strength]}</div>
+
+                  <button className="profile__btn-save">🔒 Đổi mật khẩu</button>
+
+                  {pwSaved && <div style={{ color: "green" }}>✔ Thành công</div>}
+                </div>
               </div>
             </form>
           </div>
-
-          {/* Card: Vùng nguy hiểm */}
+          {/* Card: Vùng nguy hiểm
           <div className="profile__card">
             <div className="profile__card-header">
               <div>
@@ -343,7 +336,7 @@ export default function ProfileScreen({ user, setUser }) {
                 ❌ Xoá tài khoản vĩnh viễn
               </button>
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* ── RIGHT SIDEBAR ── */}
@@ -357,8 +350,8 @@ export default function ProfileScreen({ user, setUser }) {
             <div className="profile__stats-grid">
               {[
                 { num: "12", label: "Slide đã tạo" },
-                { num: "3",  label: "Truyện tranh" },
-                { num: "8",  label: "Tuần học" },
+                { num: "3", label: "Truyện tranh" },
+                { num: "8", label: "Tuần học" },
                 { num: "47", label: "Giờ học" },
               ].map((s) => (
                 <div key={s.label} className="profile__stat">
@@ -389,7 +382,7 @@ export default function ProfileScreen({ user, setUser }) {
             </div>
           </div>
 
-          {/* Membership */}
+          {/* Membership
           <div className="profile__card">
             <div className="profile__card-header">
               <div className="profile__card-title">Gói hiện tại</div>
@@ -415,7 +408,7 @@ export default function ProfileScreen({ user, setUser }) {
                 🚀 Nâng cấp lên Pro
               </button>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
