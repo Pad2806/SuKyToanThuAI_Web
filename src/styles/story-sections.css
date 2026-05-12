@@ -1,0 +1,115 @@
+.table-of-contents {
+  background: var(--bg-dark);
+  border-bottom: 1px solid var(--divider);
+  color: var(--text-on-dark);
+  position: sticky;
+  top: 68px;
+  z-index: calc(var(--z-sticky) - 1);
+}
+
+.milestone-overview {
+  display: flex;
+  gap: 8px;
+  margin: 0 auto;
+  max-width: 1180px;
+  overflow-x: auto;
+  padding: 12px 24px;
+}
+
+.milestone-overview button {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: var(--t-ui);
+  min-height: 44px;
+  min-width: max-content;
+  padding: 8px 10px;
+}
+
+.milestone-overview .is-active {
+  border-bottom: 2px solid var(--gold);
+  color: var(--gold);
+  font-weight: 700;
+  transform: translateY(-2px);
+}
+
+.beat-section {
+  padding: 96px 24px;
+  scroll-margin-top: 128px;
+}
+
+.beat-section:nth-child(odd) {
+  background: var(--bg-parchment);
+}
+
+.beat-section:nth-child(even) {
+  background: var(--bg-parchment-2);
+}
+
+.beat-section--climax,
+.beat-section--takeaway {
+  background: var(--bg-dark);
+  color: var(--text-on-dark);
+}
+
+.beat-section__shell {
+  display: grid;
+  gap: 32px;
+  grid-template-columns: 120px minmax(0, 65ch);
+  margin: 0 auto;
+  max-width: 1180px;
+}
+
+.beat-section__rail {
+  color: rgba(128, 102, 45, 0.34);
+  font-family: var(--font-display);
+  font-size: clamp(64px, 10vw, 132px);
+  line-height: 0.8;
+  position: sticky;
+  top: 148px;
+}
+
+.beat-section__inner {
+  max-width: 65ch;
+}
+
+.beat-section__inner h2 {
+  font-family: var(--font-display);
+  font-size: var(--t-h2);
+  line-height: var(--lh-display);
+  margin: 0 0 24px;
+}
+
+.beat-section__eyebrow {
+  color: var(--gold-dim);
+  font-family: var(--font-ui);
+  font-size: var(--t-ui);
+  font-weight: 700;
+  letter-spacing: var(--ls-caption);
+  margin: 0 0 12px;
+  text-transform: uppercase;
+}
+
+.beat-section--climax .beat-section__eyebrow,
+.beat-section--takeaway .beat-section__eyebrow {
+  color: var(--gold);
+}
+
+@media (max-width: 760px) {
+  .story-hero,
+  .beat-section {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .story-hero__facts,
+  .beat-section__shell {
+    grid-template-columns: 1fr;
+  }
+
+  .beat-section__rail {
+    position: static;
+  }
+}

@@ -1,0 +1,35 @@
+:root {
+  --bg-dark: #11100c;
+  --bg-dark-warm: #1c1710;
+  --bg-parchment: #f6edd9;
+  --bg-parchment-2: #eadbbf;
+  --surface-parchment: #f8efd8;
+  --text-on-dark: #efe4c9;
+  --text-on-parch: #211a12;
+  --text-muted: #786a54;
+  --gold: #c9a84c;
+  --gold-dim: #80662d;
+  --gold-glow: rgba(201, 168, 76, 0.15);
+  --ink-red: #7a2e2e;
+  --ink-green: #2e4a2e;
+  --divider: rgba(201, 168, 76, 0.2);
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Be Vietnam Pro', 'Segoe UI', sans-serif;
+  --font-ui: 'Be Vietnam Pro', 'Segoe UI', sans-serif;
+  --t-hero: clamp(56px, 8vw, 120px);
+  --t-h1: clamp(36px, 5vw, 72px);
+  --t-h2: clamp(24px, 3vw, 40px);
+  --t-h3: clamp(20px, 2.5vw, 28px);
+  --t-body: clamp(16px, 1.5vw, 20px);
+  --t-caption: clamp(12px, 1.2vw, 14px);
+  --t-ui: 13px;
+  --lh-display: 1.05;
+  --lh-body: 1.75;
+  --lh-ui: 1.4;
+  --ls-hero: 0;
+  --ls-caption: 0.08em;
+  --ls-ui: 0.04em;
+  --ease-page: cubic-bezier(0.22, 1, 0.36, 1);
+  --shadow-warm: 0 24px 60px rgba(42, 28, 12, 0.22);
+  --z-sticky: 20;
+}

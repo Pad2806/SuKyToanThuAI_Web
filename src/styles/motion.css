@@ -1,0 +1,37 @@
+.page-transition,
+.scroll-reveal,
+.image-reveal {
+  animation: fade-up 400ms var(--ease-page) both;
+}
+
+.suspense-loader {
+  align-items: center;
+  color: var(--text-on-dark);
+  display: flex;
+  font-family: var(--font-ui);
+  justify-content: center;
+  min-height: 240px;
+}
+
+.ink-wash-transition {
+  color: var(--gold);
+  height: 24px;
+  opacity: 0.6;
+  overflow: hidden;
+}
+
+.image-reveal {
+  overflow: hidden;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,0 +1,182 @@
+.hook-hero {
+  display: grid;
+  min-height: calc(100dvh - 68px);
+  overflow: hidden;
+  padding: 96px 24px 72px;
+  place-items: end center;
+}
+
+.hook-hero__image {
+  inset: 0;
+  opacity: 0.48;
+  position: absolute;
+}
+
+.hook-hero__image::after {
+  background: linear-gradient(90deg, rgba(17, 16, 12, 0.92), rgba(17, 16, 12, 0.34));
+  content: '';
+  inset: 0;
+  position: absolute;
+}
+
+.hook-hero__image img {
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.05);
+  width: 100%;
+}
+
+.hook-hero__inner,
+.discovery-inner {
+  margin: 0 auto;
+  max-width: 1180px;
+  position: relative;
+  width: 100%;
+}
+
+.hook-hero__inner {
+  align-items: end;
+  display: grid;
+  gap: 32px;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 380px);
+  z-index: 1;
+}
+
+.hook-hero__copy {
+  max-width: 820px;
+}
+
+.hook-hero h1,
+.discovery-inner h2 {
+  font-family: var(--font-display);
+  font-size: var(--t-h1);
+  line-height: var(--lh-display);
+  margin: 0 0 16px;
+  text-wrap: balance;
+}
+
+.hook-hero__copy > p:last-of-type {
+  max-width: 680px;
+  opacity: 0.82;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.hero-actions a,
+.featured-cover__copy a,
+.story-hero__start {
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  font-family: var(--font-ui);
+  font-size: var(--t-ui);
+  font-weight: 700;
+  letter-spacing: var(--ls-ui);
+  padding: 12px 16px;
+  transition: background 220ms var(--ease-page), color 220ms var(--ease-page), transform 220ms var(--ease-page);
+}
+
+.hero-actions a:hover,
+.featured-cover__copy a:hover,
+.story-hero__start:hover {
+  background: var(--gold);
+  color: var(--bg-dark);
+  transform: translateY(-2px);
+}
+
+.hero-story-card {
+  background: rgba(17, 16, 12, 0.72);
+  border: 1px solid var(--divider);
+  box-shadow: var(--shadow-warm);
+  display: grid;
+  gap: 10px;
+  padding: 24px;
+  transition: transform 260ms var(--ease-page), border-color 260ms var(--ease-page);
+}
+
+.hero-story-card:hover,
+.topic-entry:hover,
+.featured-support__item:hover {
+  border-color: var(--gold);
+  transform: translateY(-4px);
+}
+
+.hero-story-card span,
+.featured-cover__copy span,
+.featured-support__item span {
+  color: var(--gold);
+  font-family: var(--font-ui);
+  font-size: var(--t-ui);
+  font-weight: 700;
+}
+
+.hero-story-card h2,
+.featured-cover h3 {
+  font-family: var(--font-display);
+  font-size: var(--t-h2);
+  line-height: var(--lh-display);
+  margin: 0;
+}
+
+.hero-story-card p,
+.hero-story-card small {
+  margin: 0;
+  opacity: 0.78;
+}
+
+.hero-scroll-cue {
+  bottom: 24px;
+  color: var(--gold);
+  font-family: var(--font-ui);
+  font-size: var(--t-ui);
+  left: 24px;
+  letter-spacing: var(--ls-caption);
+  position: absolute;
+  text-transform: uppercase;
+  z-index: 1;
+}
+
+.quick-discovery,
+.story-method,
+.era-river,
+.featured-stories,
+.thematic-collections,
+.learning-path,
+.call-to-action {
+  padding: 84px 24px;
+}
+
+.quick-discovery__intro {
+  align-items: end;
+  display: grid;
+  gap: 28px;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 460px);
+}
+
+.quick-discovery__search label {
+  color: var(--gold-dim);
+  display: block;
+  font-family: var(--font-ui);
+  font-size: var(--t-ui);
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.quick-discovery input {
+  background: var(--surface-parchment);
+  border: 1px solid var(--divider);
+  color: var(--text-on-parch);
+  font-size: 17px;
+  padding: 16px 18px;
+  width: 100%;
+}
+
+.quick-discovery__groups {
+  display: grid;
+  gap: 22px;
+  margin-top: 36px;
+}

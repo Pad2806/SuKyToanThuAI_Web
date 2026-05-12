@@ -1,0 +1,23 @@
+[
+  {
+    "slug": "nha-nuoc-so-khai",
+    "name": "Nhà nước sơ khai",
+    "description": "Các dấu mốc hình thành cộng đồng và thiết chế đầu tiên.",
+    "coverImage": "/images/topics/nha-nuoc-so-khai.jpg",
+    "eventSlugs": ["hung-vuong-dung-nuoc", "thanh-co-co-loa"]
+  },
+  {
+    "slug": "khang-chien-chong-xam-luoc",
+    "name": "Kháng chiến chống xâm lược",
+    "description": "Những cuộc khởi nghĩa và trận đánh giữ nền tự chủ.",
+    "coverImage": "/images/topics/khang-chien.jpg",
+    "eventSlugs": ["khoi-nghia-hai-ba-trung", "chien-thang-bach-dang-938"]
+  },
+  {
+    "slug": "van-hoa-va-doi-song",
+    "name": "Văn hoá và đời sống",
+    "description": "Tín ngưỡng, lao động, kỹ thuật và sinh hoạt của người Việt.",
+    "coverImage": "/images/topics/van-hoa-doi-song.jpg",
+    "eventSlugs": ["truyen-thuyet-son-tinh-thuy-tinh", "trong-dong-dong-son"]
+  }
+]
