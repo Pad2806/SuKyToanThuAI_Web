@@ -1,0 +1,19 @@
+/* ═══════════════════════════════════════════════
+   Theme: Vietnamese History (Default)
+   Gold accents, parchment tones, cinematic warmth
+   ═══════════════════════════════════════════════ */
+[data-story-theme="vietnamese-history"] {
+  --bg-dark: #11100c;
+  --bg-dark-warm: #1c1710;
+  --bg-parchment: #f6edd9;
+  --bg-parchment-2: #eadbbf;
+  --surface-parchment: #f8efd8;
+  --text-on-dark: #efe4c9;
+  --text-on-parch: #211a12;
+  --gold: #c9a84c;
+  --gold-dim: #80662d;
+  --gold-glow: rgba(201, 168, 76, 0.15);
+  --ink-red: #7a2e2e;
+  --ink-green: #2e4a2e;
+  --divider: rgba(201, 168, 76, 0.2);
+}

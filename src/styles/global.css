@@ -19,3 +19,14 @@
 @import './event-storytelling.css';
 @import './history-scrolly.css';
 @import './event-interactive.css';
+
+/* Story System — Themes */
+@import './themes/theme-vietnamese-history.css';
+@import './themes/theme-dark-cinematic.css';
+@import './themes/theme-parchment-scroll.css';
+@import './themes/theme-war-strategy.css';
+@import './themes/theme-royal-court.css';
+
+/* Story System — Additional blocks */
+@import './story-system/story-related.css';
+@import './story-system/story-blocks.css';

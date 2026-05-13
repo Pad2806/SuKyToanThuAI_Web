@@ -1,0 +1,28 @@
+/* ═══════════════════════════════════════════════
+   Theme: Parchment Scroll
+   Warm parchment, ink calligraphy, scholarly tone
+   ═══════════════════════════════════════════════ */
+[data-story-theme="parchment-scroll"] {
+  --bg-dark: #2a2218;
+  --bg-dark-warm: #342a1e;
+  --bg-parchment: #faf3e0;
+  --bg-parchment-2: #f0e4c8;
+  --surface-parchment: #fcf5e5;
+  --text-on-dark: #f0e4c8;
+  --text-on-parch: #2a2218;
+  --gold: #8b6914;
+  --gold-dim: #5a4410;
+  --gold-glow: rgba(139, 105, 20, 0.12);
+  --ink-red: #6b2020;
+  --ink-green: #2a5a2a;
+  --divider: rgba(139, 105, 20, 0.2);
+}
+
+[data-story-theme="parchment-scroll"] .evt-section--light {
+  background: var(--bg-parchment);
+  color: var(--text-on-parch);
+}
+
+[data-story-theme="parchment-scroll"] .evt-hero__quote {
+  border-left-color: var(--gold);
+}

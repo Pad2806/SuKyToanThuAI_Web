@@ -1,0 +1,32 @@
+/* ═══════════════════════════════════════════════
+   Theme: War Strategy
+   Dark strategic maps, red & gold, military precision
+   ═══════════════════════════════════════════════ */
+[data-story-theme="war-strategy"] {
+  --bg-dark: #0d0a07;
+  --bg-dark-warm: #181008;
+  --bg-parchment: #1a150e;
+  --bg-parchment-2: #141008;
+  --surface-parchment: #1e1810;
+  --text-on-dark: #e0d4b8;
+  --text-on-parch: #e0d4b8;
+  --gold: #b8860b;
+  --gold-dim: #7a5a08;
+  --gold-glow: rgba(184, 134, 11, 0.15);
+  --ink-red: #8b0000;
+  --ink-green: #2e6a2e;
+  --divider: rgba(184, 134, 11, 0.18);
+}
+
+[data-story-theme="war-strategy"] .evt-section--light {
+  background: var(--bg-parchment);
+  color: var(--text-on-parch);
+}
+
+[data-story-theme="war-strategy"] .evt-section--climax {
+  background: linear-gradient(180deg, #1a0000 0%, #0d0a07 100%);
+}
+
+[data-story-theme="war-strategy"] .evt-section--light .evt-section__eyebrow-text {
+  color: var(--gold);
+}

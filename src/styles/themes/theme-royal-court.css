@@ -1,0 +1,32 @@
+/* ═══════════════════════════════════════════════
+   Theme: Royal Court
+   Deep crimson, gold leaf, imperial elegance
+   ═══════════════════════════════════════════════ */
+[data-story-theme="royal-court"] {
+  --bg-dark: #120a0a;
+  --bg-dark-warm: #1e1010;
+  --bg-parchment: #f8f0e0;
+  --bg-parchment-2: #ede0c8;
+  --surface-parchment: #faf2e4;
+  --text-on-dark: #f0e0c8;
+  --text-on-parch: #2a1a12;
+  --gold: #d4a020;
+  --gold-dim: #8a6818;
+  --gold-glow: rgba(212, 160, 32, 0.12);
+  --ink-red: #8b2020;
+  --ink-green: #2a5a2a;
+  --divider: rgba(212, 160, 32, 0.2);
+}
+
+[data-story-theme="royal-court"] .evt-section--light {
+  background: var(--bg-parchment);
+  color: var(--text-on-parch);
+}
+
+[data-story-theme="royal-court"] .evt-hero__era {
+  border-color: rgba(212, 160, 32, 0.4);
+}
+
+[data-story-theme="royal-court"] .evt-section--climax {
+  background: linear-gradient(180deg, #1a0808 0%, #120a0a 100%);
+}

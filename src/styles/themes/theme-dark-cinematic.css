@@ -1,0 +1,28 @@
+/* ═══════════════════════════════════════════════
+   Theme: Dark Cinematic
+   Deep blacks, ember highlights, dramatic contrast
+   ═══════════════════════════════════════════════ */
+[data-story-theme="dark-cinematic"] {
+  --bg-dark: #08070a;
+  --bg-dark-warm: #12101a;
+  --bg-parchment: #1a1824;
+  --bg-parchment-2: #141220;
+  --surface-parchment: #1e1c2a;
+  --text-on-dark: #e8e2f0;
+  --text-on-parch: #e8e2f0;
+  --gold: #e8a838;
+  --gold-dim: #9a6a20;
+  --gold-glow: rgba(232, 168, 56, 0.12);
+  --ink-red: #c4382e;
+  --ink-green: #2e8a4e;
+  --divider: rgba(232, 168, 56, 0.15);
+}
+
+[data-story-theme="dark-cinematic"] .evt-section--light {
+  background: var(--bg-parchment);
+  color: var(--text-on-parch);
+}
+
+[data-story-theme="dark-cinematic"] .evt-section--light .evt-section__eyebrow-text {
+  color: var(--gold);
+}
