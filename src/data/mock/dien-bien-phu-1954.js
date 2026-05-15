@@ -11,7 +11,7 @@ export const dienBienPhu1954 = {
   eraSlug: 'khang-chien-chong-phap',
   year: 1954,
   gradeTags: ['THCS', 'THPT'],
-  topics: ['khang-chien-chong-xam-luoc'],
+
   type: 'battle',
   featured: true,
   summary: 'Chiến thắng "lừng lẫy năm châu, chấn động địa cầu" — kết thúc 9 năm kháng chiến chống thực dân Pháp.',

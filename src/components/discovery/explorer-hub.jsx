@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { getAllEras, getAllTopics } from '../../lib/event-queries.js';
+import { getAllEras } from '../../lib/event-queries.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -15,7 +15,6 @@ const gradeLinks = [
 export const ExplorerHub = () => {
   const sectionRef = useRef(null);
   const eras = getAllEras();
-  const topics = getAllTopics();
 
   useEffect(() => {
     if (!sectionRef.current) return;
@@ -62,7 +61,7 @@ export const ExplorerHub = () => {
           <p className="section-kicker">Khám phá theo cách của bạn</p>
           <h2>Bắt đầu từ đâu?</h2>
           <p className="section-lead">
-            Chọn một cách tiếp cận phù hợp — theo cấp học, theo thời kỳ hoặc theo chủ đề bạn quan tâm.
+            Chọn một cách tiếp cận phù hợp — theo cấp học hoặc theo thời kỳ lịch sử.
           </p>
         </div>
 
@@ -90,14 +89,6 @@ export const ExplorerHub = () => {
             <div className="explorer-chip-row">
               {eras.map((era) => (
                 <Link key={era.id} to={`/thoi-ky/${era.slug}`} className="explorer-chip">{era.name}</Link>
-              ))}
-            </div>
-          </div>
-          <div className="explorer-chip-group">
-            <p className="explorer-chip-label">Chủ đề</p>
-            <div className="explorer-chip-row">
-              {topics.map((topic) => (
-                <Link key={topic.slug} to={`/chu-de/${topic.slug}`} className="explorer-chip">{topic.name}</Link>
               ))}
             </div>
           </div>

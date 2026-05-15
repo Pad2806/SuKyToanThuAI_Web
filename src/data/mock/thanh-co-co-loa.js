@@ -11,7 +11,7 @@ export const thanhCoCola = {
   eraSlug: 'van-lang-au-lac',
   year: -257,
   gradeTags: ['THCS', 'THPT'],
-  topics: ['nha-nuoc-so-khai'],
+
   type: 'culture',
   featured: true,
   summary: 'Cổ Loa thể hiện kỹ thuật quân sự và tổ chức nhà nước Âu Lạc.',

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router';
 import { getAllEras, getEventsByEra } from '../../lib/event-queries.js';
-import { TopicEntry } from './topic-entry.jsx';
+
 
 export const EraRiver = () => (
   <section className="era-river section-dark" id="dong-chay">
@@ -28,7 +28,7 @@ export const EraRiver = () => (
                     </li>
                   ))}
                 </ul>
-                <TopicEntry count={events.length} label="Khám phá thời kỳ" to={`/thoi-ky/${era.slug}`} />
+                <Link className="topic-entry" to={`/thoi-ky/${era.slug}`}><strong>Khám phá thời kỳ</strong><span>{events.length} sự kiện</span></Link>
               </div>
             </article>
           );

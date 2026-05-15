@@ -27,7 +27,7 @@ export const stringifyListingState = (state) => {
 export const filterEvents = (events, state) =>
   events.filter((event) => {
     const matchesGrade = !state.grade || event.gradeTags.includes(state.grade);
-    const matchesTopic = !state.topic || event.topics.includes(state.topic);
+    const matchesTopic = !state.topic || event.topics?.includes(state.topic);
     const matchesType = !state.type || event.type === state.type;
 
     return matchesGrade && matchesTopic && matchesType;

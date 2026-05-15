@@ -11,7 +11,7 @@ export const khoiNghiaHaiBaTrung = {
   eraSlug: 'bac-thuoc',
   year: 40,
   gradeTags: ['TH', 'THCS', 'THPT'],
-  topics: ['khang-chien-chong-xam-luoc'],
+
   type: 'movement',
   featured: true,
   summary: 'Cuộc khởi nghĩa lớn đầu tiên chống ách đô hộ phương Bắc.',

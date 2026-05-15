@@ -1,9 +1,9 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
 import { EventListSection } from '../components/filters/event-list-section.jsx';
 import { FilterSortBar } from '../components/filters/filter-sort-bar.jsx';
 import { RouteCard } from '../components/shared/route-card.jsx';
-import { getAdjacentEras, getAllTopics, getEraBySlug, getEventsByEra } from '../lib/event-queries.js';
+import { getAdjacentEras, getEraBySlug, getEventsByEra, loadEraBySlug } from '../lib/event-queries.js';
 import { applyListingState, parseListingState } from '../lib/listing-state.js';
 
 const eraImages = {
@@ -20,10 +20,32 @@ const eraImages = {
 export const EraDetailPage = () => {
   const { eraSlug = '' } = useParams();
   const [searchParams] = useSearchParams();
-  const era = getEraBySlug(eraSlug);
-  const adjacent = getAdjacentEras(eraSlug);
+  const [era, setEra] = useState(() => getEraBySlug(eraSlug));
+  const [eraEvents, setEraEvents] = useState(() => getEventsByEra(eraSlug));
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const state = parseListingState(searchParams);
-  const events = useMemo(() => applyListingState(getEventsByEra(eraSlug), state), [eraSlug, state.grade, state.sort, state.topic, state.type]);
+  const adjacent = getAdjacentEras(eraSlug);
+  const events = useMemo(() => applyListingState(eraEvents, state), [eraEvents, state.grade, state.sort, state.topic, state.type]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError('');
+    loadEraBySlug(eraSlug)
+      .then((nextEra) => {
+        if (cancelled) return;
+        setEra(nextEra);
+        setEraEvents(getEventsByEra(eraSlug));
+      })
+      .catch((err) => {
+        if (!cancelled) setError(err.message);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [eraSlug]);
 
   const coverImage = era ? eraImages[era.id] || era.coverImage : null;
 
@@ -34,8 +56,8 @@ export const EraDetailPage = () => {
       coverImage={coverImage}
       subtitle={era?.summary}
     >
-      <FilterSortBar topics={getAllTopics()} />
-      <EventListSection events={events} variant="grid" />
+      <FilterSortBar />
+      <EventListSection error={error} events={events} loading={loading} variant="grid" />
       <nav aria-label="Thời kỳ lân cận" className="adjacent-nav">
         {adjacent.previous && (
           <Link to={`/thoi-ky/${adjacent.previous.slug}`} className="adjacent-nav__link">

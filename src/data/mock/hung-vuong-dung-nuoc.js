@@ -13,7 +13,7 @@ export const hungVuongDungNuoc = {
   startYear: -2879,
   endYear: -258,
   gradeTags: ['TH', 'THCS'],
-  topics: ['nha-nuoc-so-khai', 'van-hoa-va-doi-song'],
+
   type: 'dynasty',
   featured: true,
   summary: 'Truyền thuyết về thời đại Hùng Vương và nền Văn Lang.',

@@ -19,6 +19,7 @@
 @import './event-storytelling.css';
 @import './history-scrolly.css';
 @import './event-interactive.css';
+@import './ai-studio.css';
 
 /* Story System — Themes */
 @import './themes/theme-vietnamese-history.css';

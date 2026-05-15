@@ -21,15 +21,6 @@
  */
 
 /**
- * @typedef {Object} Topic
- * @property {string} slug
- * @property {string} name
- * @property {string=} description
- * @property {string=} coverImage
- * @property {string[]=} eventSlugs
- */
-
-/**
  * @typedef {Object} StoryBeat
  * @property {BeatType} type
  * @property {string} title
@@ -53,7 +44,6 @@
  * @property {number=} startYear
  * @property {number=} endYear
  * @property {GradeTag[]} gradeTags
- * @property {string[]} topics
  * @property {EventType} type
  * @property {boolean} featured
  * @property {string} summary

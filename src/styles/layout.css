@@ -32,7 +32,6 @@
   display: flex;
   gap: 20px;
   min-height: 68px;
-  overflow-x: auto;
 }
 
 .site-nav__brand {
@@ -54,75 +53,24 @@
 .site-nav__logo-text {
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: 0;
   position: relative;
 }
 
-/* Warm ambient glow behind the whole logo mark */
-.site-nav__logo-text::after {
-  content: '';
-  position: absolute;
-  inset: -6px -10px;
-  background: radial-gradient(
-    ellipse 70% 60% at 35% 50%,
-    rgba(201, 168, 76, 0.10) 0%,
-    transparent 70%
-  );
-  pointer-events: none;
-  z-index: -1;
-}
-
-/* ── "Sử Ký" — ancient manuscript feel ── */
-.site-nav__logo-main {
-  font-family: var(--font-display);
+.logo-wordmark {
+  font-family: "Cormorant Garamond", "Noto Serif", "Times New Roman", serif;
   font-size: 28px;
   font-weight: 700;
-  font-style: normal;
-  letter-spacing: 0.06em;
-  line-height: 1;
-  /* Golden parchment gradient — warm ivory → antique brass → burnished gold */
-  background: linear-gradient(
-    168deg,
-    #f5e6b8 0%,
-    #d4b467 38%,
-    #c9a84c 55%,
-    #b8923a 72%,
-    #dfc97a 100%
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  /* Depth via drop-shadow (works on the glyph shape) */
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
-  /* Crisp rendering */
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
+  letter-spacing: 0.02em;
+  color: #d6b75f;
+  text-shadow: 0 0 18px rgba(214, 183, 95, 0.12);
+  transition: filter 300ms ease, color 300ms ease;
 }
 
-/* ── "AI" badge — restrained, harmonized ── */
-.site-nav__logo-accent {
-  font-family: var(--font-display);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  line-height: 1;
-  color: var(--gold);
-  border: 1px solid rgba(201, 168, 76, 0.30);
-  padding: 3px 6px 2px;
-  border-radius: 2px;
-  position: relative;
-  top: -2px;
-  /* Subtle inner warmth */
-  background: linear-gradient(
-    180deg,
-    rgba(201, 168, 76, 0.08) 0%,
-    rgba(201, 168, 76, 0.03) 100%
-  );
-  text-shadow: 0 0 6px rgba(201, 168, 76, 0.15);
-  box-shadow: 0 0 8px rgba(201, 168, 76, 0.06);
+.site-nav__brand:hover .logo-wordmark {
+  color: #f5e6b8;
+  filter: drop-shadow(0 0 24px rgba(214, 183, 95, 0.3));
 }
-
 .site-nav__links {
   display: flex;
   align-items: center;
@@ -136,11 +84,89 @@
   min-width: max-content;
   opacity: 0.78;
   transition: color 220ms var(--ease-page), opacity 220ms var(--ease-page);
+  cursor: pointer;
 }
 
 .site-nav__link:hover {
   color: var(--gold);
   opacity: 1;
+}
+
+.site-nav__dropdown {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.grade-dropdown-trigger {
+  background: none;
+  border: none;
+  font-family: var(--font-ui);
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+}
+
+.site-nav__dropdown-caret {
+  font-size: 8px;
+  margin-left: 6px;
+  opacity: 0.7;
+  transition: transform 0.2s ease;
+}
+
+.site-nav__dropdown-caret.open {
+  transform: rotate(180deg);
+}
+
+.grade-dropdown {
+  position: absolute;
+  top: calc(100% + 16px);
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 140px;
+  padding: 8px;
+  border: 1px solid rgba(214, 183, 95, 0.22);
+  border-radius: 16px;
+  background: rgba(13, 11, 7, 0.92);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45),
+              0 0 24px rgba(214, 183, 95, 0.08);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: dropdownFade 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.grade-dropdown::before {
+  content: "";
+  position: absolute;
+  top: -24px;
+  left: 0;
+  width: 100%;
+  height: 24px;
+}
+
+@keyframes dropdownFade {
+  from { opacity: 0; transform: translate(-50%, -10px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.grade-dropdown-item {
+  display: block;
+  border-radius: 10px;
+  padding: 10px 16px;
+  color: rgba(239, 230, 208, 0.78);
+  text-decoration: none;
+  font-size: 14px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.grade-dropdown-item:hover {
+  background: rgba(214, 183, 95, 0.10);
+  color: #d6b75f;
 }
 
 .site-nav__link--search {
@@ -168,7 +194,10 @@
 
 /* ─── Footer ─── */
 .site-footer {
+  position: relative;
+  z-index: 10;
   border-top: 1px solid var(--divider);
+  background: var(--bg-dark);
 }
 
 .site-footer__inner {
@@ -189,10 +218,11 @@
 }
 
 .site-footer__logo {
-  font-family: var(--font-display);
-  font-size: 32px;
+  font-family: var(--font-logo);
+  font-size: 34px;
+  font-style: italic;
   color: var(--gold);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .site-footer__brand p {
@@ -258,18 +288,12 @@
     font-size: 24px;
   }
 
-  .site-nav__logo-main {
+  .logo-wordmark {
     font-size: 24px;
-    letter-spacing: 0.04em;
-  }
-
-  .site-nav__logo-accent {
-    font-size: 9px;
-    padding: 2px 5px 1px;
   }
 
   .site-nav__logo-text {
-    gap: 6px;
+    gap: 0;
   }
 
   .site-footer__grid {

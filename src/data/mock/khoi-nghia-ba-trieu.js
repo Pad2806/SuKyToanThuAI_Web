@@ -11,7 +11,7 @@ export const khoiNghiaBaTrieu = {
   eraSlug: 'bac-thuoc',
   year: 248,
   gradeTags: ['THCS', 'THPT'],
-  topics: ['khang-chien-chong-xam-luoc'],
+
   type: 'movement',
   featured: false,
   summary: 'Bà Triệu lãnh đạo cuộc nổi dậy mạnh mẽ ở Cửu Chân.',

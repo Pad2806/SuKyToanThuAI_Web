@@ -7,14 +7,9 @@ const footerLinks = [
 ];
 
 const gradeLinks = [
-  { label: 'Lớp 5', to: '/khoi-lop/5' },
-  { label: 'Lớp 6', to: '/khoi-lop/6' },
-  { label: 'Lớp 7', to: '/khoi-lop/7' },
-  { label: 'Lớp 8', to: '/khoi-lop/8' },
-  { label: 'Lớp 9', to: '/khoi-lop/9' },
-  { label: 'Lớp 10', to: '/khoi-lop/10' },
-  { label: 'Lớp 11', to: '/khoi-lop/11' },
-  { label: 'Lớp 12', to: '/khoi-lop/12' },
+  { label: 'Tiểu học', to: '/khoi-lop/th' },
+  { label: 'THCS', to: '/khoi-lop/thcs' },
+  { label: 'THPT', to: '/khoi-lop/thpt' },
 ];
 
 export const Footer = () => (
@@ -33,11 +28,9 @@ export const Footer = () => (
         </nav>
         <nav className="site-footer__nav">
           <h4>Khối lớp</h4>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 24px' }}>
-            {gradeLinks.map((link) => (
-              <Link key={link.to} to={link.to}>{link.label}</Link>
-            ))}
-          </div>
+          {gradeLinks.map((link) => (
+            <Link key={link.to} to={link.to}>{link.label}</Link>
+          ))}
         </nav>
       </div>
       <div className="site-footer__bottom">

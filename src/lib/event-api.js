@@ -1,12 +1,14 @@
 /**
  * API-ready data fetching layer for story events.
  *
- * Phase 1 (current): Resolves from local mock data files via dynamic import.
- * Phase 2 (future):  Swap to `fetch('/api/events/${slug}')` — no component changes needed.
+ * Resolves rich story data from the backend first, then falls back to local
+ * mock modules so the UI remains usable while the API is offline in dev.
  *
  * The mock directory uses the convention:
  *   src/data/mock/{slug}.js  →  export const {camelCase} = { slug: '{slug}', ... }
  */
+
+import { api } from './api-client.js';
 
 /* ── Registry of known interactive event slugs → module paths ── */
 const MOCK_REGISTRY = import.meta.glob('../data/mock/*.js');
@@ -19,7 +21,12 @@ const MOCK_REGISTRY = import.meta.glob('../data/mock/*.js');
  * @returns {Promise<import('../data/types/story-event-schema.js').StoryEventData | null>}
  */
 export async function fetchStoryEvent(slug) {
-  // Phase 1: Local mock lookup
+  try {
+    return await api.get(`/content/events/${slug}`);
+  } catch {
+    // Local mock fallback below.
+  }
+
   for (const path in MOCK_REGISTRY) {
     const mod = await MOCK_REGISTRY[path]();
     const data = Object.values(mod).find(
@@ -27,15 +34,6 @@ export async function fetchStoryEvent(slug) {
     );
     if (data) return data;
   }
-
-  // Phase 2: Uncomment when API is ready
-  // try {
-  //   const res = await fetch(`/api/events/${slug}`);
-  //   if (!res.ok) return null;
-  //   return await res.json();
-  // } catch {
-  //   return null;
-  // }
 
   return null;
 }

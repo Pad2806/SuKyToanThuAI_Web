@@ -7,14 +7,9 @@ import { getAllEras } from '../../lib/event-queries.js';
 gsap.registerPlugin(ScrollTrigger);
 
 const gradeLinks = [
-  { label: 'Lớp 5', desc: 'Khởi nguồn lịch sử', to: '/khoi-lop/5' },
-  { label: 'Lớp 6', desc: 'Từ cội nguồn đến thế kỷ X', to: '/khoi-lop/6' },
-  { label: 'Lớp 7', desc: 'Đại Việt thế kỷ X - XVI', to: '/khoi-lop/7' },
-  { label: 'Lớp 8', desc: 'Biến động thế kỷ XVI - XIX', to: '/khoi-lop/8' },
-  { label: 'Lớp 9', desc: 'Cách mạng giải phóng', to: '/khoi-lop/9' },
-  { label: 'Lớp 10', desc: 'Tiến trình lịch sử tổng quan', to: '/khoi-lop/10' },
-  { label: 'Lớp 11', desc: 'Giữa biến động quốc tế', to: '/khoi-lop/11' },
-  { label: 'Lớp 12', desc: 'Hiện đại và hội nhập', to: '/khoi-lop/12' },
+  { label: 'Tiểu học', desc: 'Nhân vật, địa danh và hình ảnh lịch sử', to: '/khoi-lop/th' },
+  { label: 'THCS', desc: 'Bối cảnh, diễn biến và mốc thời gian', to: '/khoi-lop/thcs' },
+  { label: 'THPT', desc: 'Phân tích nguyên nhân, hệ quả và ý nghĩa', to: '/khoi-lop/thpt' },
 ];
 
 export const FinalCta = () => {

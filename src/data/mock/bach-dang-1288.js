@@ -12,7 +12,7 @@ export const bachDang1288 = {
   eraSlug: 'nha-tran',
   year: 1288,
   gradeTags: ['THCS', 'THPT'],
-  topics: ['khang-chien-chong-xam-luoc'],
+
   type: 'battle',
   featured: true,
   summary: 'Trần Hưng Đạo đại phá quân Nguyên trên sông Bạch Đằng, kết thúc 30 năm chống xâm lược Mông–Nguyên.',

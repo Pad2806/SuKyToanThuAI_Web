@@ -1,16 +1,29 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { EventListSection } from '../components/filters/event-list-section.jsx';
 import { FilterSortBar } from '../components/filters/filter-sort-bar.jsx';
 import { RouteCard } from '../components/shared/route-card.jsx';
-import { getAllTopics, searchEvents } from '../lib/event-queries.js';
+import { loadSearchEvents, searchEvents } from '../lib/event-queries.js';
 import { applyListingState, parseListingState } from '../lib/listing-state.js';
 
 export const SearchPage = () => {
   const [searchParams] = useSearchParams();
   const q = searchParams.get('q') ?? '';
   const state = parseListingState(searchParams);
-  const events = useMemo(() => applyListingState(searchEvents({ q }), state), [q, state.grade, state.sort, state.topic, state.type]);
+  const [results, setResults] = useState(() => searchEvents({ q }));
+  const [loading, setLoading] = useState(false);
+  const events = useMemo(() => applyListingState(results, state), [results, state.grade, state.sort, state.topic, state.type]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    loadSearchEvents({ q, filters: { grade: state.grade, type: state.type } }).then((loaded) => {
+      if (!cancelled) setResults(loaded);
+    }).finally(() => {
+      if (!cancelled) setLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, [q, state.grade, state.type]);
 
   return (
     <RouteCard
@@ -31,8 +44,8 @@ export const SearchPage = () => {
         </button>
       </form>
       {q && <p className="search-results-count">{events.length} kết quả cho "{q}"</p>}
-      <FilterSortBar topics={getAllTopics()} />
-      <EventListSection events={events} variant="grid" />
+      <FilterSortBar />
+      <EventListSection events={events} loading={loading} variant="grid" />
     </RouteCard>
   );
 };

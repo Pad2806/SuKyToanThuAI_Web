@@ -46,6 +46,9 @@
   max-width: 1180px;
   margin: 0 auto;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .route-hero__back {
@@ -58,9 +61,10 @@
   font-weight: 700;
   letter-spacing: 0.04em;
   border-bottom: 1px solid rgba(201,168,76,0.3);
-  margin-bottom: 24px;
+  margin-bottom: 32px;
   padding-bottom: 4px;
   transition: gap 300ms ease;
+  text-decoration: none;
 }
 .route-hero__back:hover { gap: 10px; }
 

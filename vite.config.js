@@ -15,6 +15,11 @@ export default defineConfig({
       '~types': path.resolve(__dirname, './src/data/types'),
     },
   },
+  server: {
+    proxy: {
+      '/api': 'http://localhost:80',
+    },
+  },
   test: {
     environment: 'node',
     globals: false,

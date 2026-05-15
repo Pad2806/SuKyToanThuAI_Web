@@ -11,7 +11,7 @@ export const sonTinhThuyTinh = {
   eraSlug: 'van-lang-au-lac',
   year: -2500,
   gradeTags: ['TH'],
-  topics: ['van-hoa-va-doi-song'],
+
   type: 'culture',
   featured: false,
   summary: 'Truyền thuyết lý giải lũ lụt và khát vọng chế ngự thiên nhiên.',
