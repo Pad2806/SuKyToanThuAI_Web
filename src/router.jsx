@@ -16,6 +16,7 @@ const LoginPage = lazy(() => import('./routes/login-page.jsx'));
 const AiHubPage = lazy(() => import('./routes/ai-hub-page.jsx'));
 const StudioPage = lazy(() => import('./routes/studio-page.jsx'));
 const CreatorPage = lazy(() => import('./routes/creator-page.jsx'));
+const AiGeneratedEventPage = lazy(() => import('./routes/ai-generated-event-page.jsx'));
 
 export const AppRoutes = () => (
   <Suspense fallback={<SuspenseLoader label="Đang tải trang" />}>
@@ -33,6 +34,7 @@ export const AppRoutes = () => (
       <Route path="/khong-gian-ai" element={<AiHubPage />} />
       <Route path="/khong-gian-ai/nghien-cuu" element={<StudioPage />} />
       <Route path="/khong-gian-ai/sang-tao" element={<CreatorPage />} />
+      <Route path="/ai/trang/:pageId" element={<AiGeneratedEventPage />} />
 
       <Route path="*" element={<NotFoundPage />} />
     </Routes>

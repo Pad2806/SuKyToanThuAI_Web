@@ -1102,3 +1102,125 @@
   color: var(--gold) !important;
   font-weight: 600;
 }
+
+.studio-form select,
+.creator-form select {
+  background: rgba(13,11,7,0.65);
+  border: 1px solid rgba(212,175,82,0.22);
+  border-radius: 8px;
+  color: var(--text-on-dark);
+  font: inherit;
+  padding: 0.75rem 0.9rem;
+}
+
+.ai-coverage {
+  background: rgba(28,23,16,0.82);
+  border: 1px solid rgba(212,175,82,0.26);
+  border-radius: 10px;
+  color: var(--text-on-dark);
+  margin: 0 0 2rem;
+  padding: 1.25rem;
+}
+
+.ai-coverage h3 {
+  color: var(--gold);
+  font-family: var(--font-display);
+  margin: 0 0 0.5rem;
+}
+
+.ai-coverage ul {
+  display: grid;
+  gap: 0.65rem;
+  list-style: none;
+  margin: 1rem 0;
+  padding: 0;
+}
+
+.ai-coverage li {
+  border-left: 2px solid var(--gold-dim);
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding-left: 0.75rem;
+}
+
+.ai-coverage li span,
+.ai-page-history__empty {
+  color: var(--text-muted);
+}
+
+.ai-coverage__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.ai-coverage__primary,
+.ai-coverage__secondary {
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  padding: 0.75rem 1rem;
+}
+
+.ai-coverage__primary {
+  background: linear-gradient(135deg, var(--gold), var(--gold-dim));
+  border: none;
+  color: var(--bg-dark);
+}
+
+.ai-coverage__secondary {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.24);
+  color: var(--text-on-dark);
+}
+
+.ai-page-history {
+  margin-top: 2rem;
+}
+
+.ai-page-history__title {
+  color: var(--text-on-dark);
+  font-family: var(--font-display);
+  margin-bottom: 1rem;
+}
+
+.ai-page-history__list {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.ai-page-history__item {
+  align-items: center;
+  background: rgba(28,23,16,0.68);
+  border: 1px solid rgba(212,175,82,0.18);
+  border-radius: 8px;
+  color: var(--text-on-dark);
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: 72px 1fr;
+  padding: 0.75rem;
+  text-decoration: none;
+}
+
+.ai-page-history__item img {
+  aspect-ratio: 4 / 3;
+  border-radius: 6px;
+  object-fit: cover;
+  width: 72px;
+}
+
+.ai-page-history__item small {
+  color: var(--text-muted);
+  display: block;
+  margin-top: 0.25rem;
+}
+
+.ai-generated-banner {
+  background: #1c1710;
+  border-bottom: 1px solid rgba(212,175,82,0.28);
+  color: var(--gold);
+  font-weight: 700;
+  padding: 0.85rem 1rem;
+  text-align: center;
+}
