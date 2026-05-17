@@ -7,6 +7,7 @@ const EraDetailPage = lazy(() => import('./routes/era-detail-page.jsx'));
 const GradeFilterPage = lazy(() => import('./routes/grade-filter-page.jsx'));
 const EventDetailPage = lazy(() => import('./routes/event-detail-page.jsx'));
 const SearchPage = lazy(() => import('./routes/search-page.jsx'));
+const AdminPage = lazy(() => import('./routes/admin-page.jsx'));
 
 const FeaturedIndexPage = lazy(() => import('./routes/featured-index-page.jsx'));
 const NotFoundPage = lazy(() => import('./routes/not-found-page.jsx'));
@@ -16,6 +17,7 @@ const LoginPage = lazy(() => import('./routes/login-page.jsx'));
 const AiHubPage = lazy(() => import('./routes/ai-hub-page.jsx'));
 const StudioPage = lazy(() => import('./routes/studio-page.jsx'));
 const CreatorPage = lazy(() => import('./routes/creator-page.jsx'));
+const AiGeneratedEventPage = lazy(() => import('./routes/ai-generated-event-page.jsx'));
 
 export const AppRoutes = () => (
   <Suspense fallback={<SuspenseLoader label="Đang tải trang" />}>
@@ -25,6 +27,7 @@ export const AppRoutes = () => (
       <Route path="/khoi-lop/:gradeSlug" element={<GradeFilterPage />} />
       <Route path="/su-kien/:eventSlug" element={<EventDetailPage />} />
       <Route path="/tim-kiem" element={<SearchPage />} />
+      <Route path="/admin" element={<AdminPage />} />
 
       <Route path="/noi-bat" element={<FeaturedIndexPage />} />
 
@@ -33,6 +36,7 @@ export const AppRoutes = () => (
       <Route path="/khong-gian-ai" element={<AiHubPage />} />
       <Route path="/khong-gian-ai/nghien-cuu" element={<StudioPage />} />
       <Route path="/khong-gian-ai/sang-tao" element={<CreatorPage />} />
+      <Route path="/ai/trang/:pageId" element={<AiGeneratedEventPage />} />
 
       <Route path="*" element={<NotFoundPage />} />
     </Routes>

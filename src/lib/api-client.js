@@ -30,8 +30,9 @@ const writeAuth = (auth) => {
 async function request(path, options = {}) {
   const auth = readAuth();
   const headers = new Headers(options.headers ?? {});
+  const isForm = typeof FormData !== 'undefined' && options.body instanceof FormData;
   headers.set('Accept', 'application/json');
-  if (options.body && !headers.has('Content-Type')) {
+  if (options.body && !isForm && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json');
   }
   if (auth?.accessToken) {
@@ -54,6 +55,8 @@ export const api = {
   get: (path) => request(path),
   post: (path, body) => request(path, { method: 'POST', body: JSON.stringify(body) }),
   patch: (path, body) => request(path, { method: 'PATCH', body: JSON.stringify(body) }),
+  delete: (path) => request(path, { method: 'DELETE' }),
+  form: (path, body) => request(path, { method: 'POST', body }),
   readAuth,
   writeAuth,
 };

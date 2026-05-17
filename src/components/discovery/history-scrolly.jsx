@@ -53,9 +53,9 @@ export const HistoryScrolly = () => {
         const bgImg = panel.querySelector('.scrolly-bg-wrapper img');
         if (bgImg) {
           gsap.fromTo(bgImg,
-            { scale: 1.15, opacity: 0.4 },
+            { scale: 1.03, opacity: 0.4 },
             { 
-              scale: 1.05, 
+              scale: 1.0, 
               opacity: 1, 
               ease: 'none',
               scrollTrigger: {

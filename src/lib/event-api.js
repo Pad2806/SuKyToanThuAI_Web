@@ -24,7 +24,7 @@ export async function fetchStoryEvent(slug) {
   try {
     return await api.get(`/content/events/${slug}`);
   } catch {
-    // Local mock fallback below.
+    if (!import.meta.env.DEV) return null;
   }
 
   for (const path in MOCK_REGISTRY) {

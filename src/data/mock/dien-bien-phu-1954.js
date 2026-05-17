@@ -7,7 +7,7 @@ export const dienBienPhu1954 = {
   id: 'event-dien-bien-phu-1954',
   slug: 'chien-thang-dien-bien-phu-1954',
   title: 'Chiến thắng Điện Biên Phủ năm 1954',
-  eraId: 'era-chong-phap',
+  eraId: 'era-khang-chien-chong-phap',
   eraSlug: 'khang-chien-chong-phap',
   year: 1954,
   gradeTags: ['THCS', 'THPT'],
@@ -257,3 +257,4 @@ export const dienBienPhu1954 = {
     ],
   },
 };
+

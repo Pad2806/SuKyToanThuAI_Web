@@ -1,0 +1,142 @@
+import React, { useState } from 'react';
+
+const requiredSlots = new Set(['hero', 'climax', 'aftermath', 'battle-map', 'battlefield']);
+
+const IconImage = () => (
+  <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+  </svg>
+);
+
+const IconGrid = () => (
+  <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+  </svg>
+);
+
+const IconWand = () => (
+  <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8L19 13"/><path d="M15 9h.01"/><path d="M17.8 6.2L19 5"/><path d="M11 6.2L9.7 5"/><path d="M11 11.8l-1.3 1.2"/><path d="M3 21l9-9"/>
+  </svg>
+);
+
+export const AssetSlotBoard = ({ disabled = false, slots = [], onEnsure, onPrompts, onImage, onReview, onManual }) => {
+  const [manual, setManual] = useState({});
+  const [notes, setNotes] = useState({});
+
+  return (
+    <section className="admin-card">
+      <div className="admin-card__header">
+        <div className="admin-card__icon"><IconImage /></div>
+        <h2>Hình ảnh minh họa</h2>
+        {slots.length > 0 && <span className="admin-status admin-status--review">{slots.length} vị trí</span>}
+      </div>
+      {disabled && <p className="admin-note">Sự kiện không còn ở trạng thái chỉnh sửa.</p>}
+      <div className="admin-actions">
+        <button className="admin-btn admin-btn--primary" disabled={disabled} onClick={onEnsure} type="button">
+          <IconGrid />
+          Tạo vị trí ảnh
+        </button>
+        <button className="admin-btn" disabled={disabled || !slots.length} onClick={onPrompts} type="button">
+          <IconWand />
+          Tạo gợi ý AI
+        </button>
+      </div>
+      <div className="asset-slot-grid">
+        {slots.map((slot) => {
+          const key = slot.slotKey || slot.slot_key;
+          const image = slot.imageUrl || slot.image_url;
+          return (
+            <article key={slot.id || key} className="asset-slot">
+              <header className="asset-slot__header">
+                <h3>{slot.slotLabel || slot.slot_label || key}</h3>
+                <span className={`admin-status admin-status--${slot.status}`}>{slot.status}</span>
+                {requiredSlots.has(key) && <span className="admin-required">Bắt buộc</span>}
+              </header>
+              {image ? (
+                <img
+                  alt={slot.slotLabel || key}
+                  src={image}
+                  loading="lazy"
+                  width="640"
+                  height="360"
+                  style={{ width: '100%', height: 'auto' }}
+                />
+              ) : (
+                <div className="admin-empty" style={{ padding: '16px' }}>
+                  <IconImage />
+                  <span>Chưa có hình ảnh</span>
+                </div>
+              )}
+              {slot.prompt && <p>{slot.prompt}</p>}
+              <label>URL hình ảnh thủ công
+                <input
+                  autoComplete="off"
+                  disabled={disabled || slot.status === 'approved'}
+                  name={`hinh-anh-${key}`}
+                  placeholder="https://…"
+                  type="url"
+                  value={manual[key] ?? ''}
+                  onChange={(e) => setManual({ ...manual, [key]: e.target.value })}
+                />
+              </label>
+              <label>Ghi chú kiểm duyệt
+                <input
+                  autoComplete="off"
+                  disabled={disabled}
+                  name={`ghi-chu-${key}`}
+                  placeholder="Ghi chú cho hình ảnh này…"
+                  value={notes[key] ?? ''}
+                  onChange={(e) => setNotes({ ...notes, [key]: e.target.value })}
+                />
+              </label>
+              <div className="admin-actions">
+                <button
+                  className="admin-btn"
+                  disabled={disabled || !manual[key] || slot.status === 'approved'}
+                  onClick={() => onManual(slot, manual[key])}
+                  type="button"
+                >
+                  Lưu URL
+                </button>
+                <button
+                  className="admin-btn admin-btn--primary"
+                  disabled={disabled || slot.status === 'approved'}
+                  onClick={() => onImage(slot)}
+                  type="button"
+                >
+                  <IconWand />
+                  Tạo ảnh AI
+                </button>
+                <button
+                  className="admin-btn admin-btn--approve"
+                  disabled={disabled || !image}
+                  onClick={() => onReview(slot, 'approved', notes[key])}
+                  type="button"
+                >
+                  Duyệt
+                </button>
+                <button
+                  className="admin-btn admin-btn--danger"
+                  disabled={disabled}
+                  onClick={() => onReview(slot, 'rejected', notes[key])}
+                  type="button"
+                >
+                  Từ chối
+                </button>
+              </div>
+            </article>
+          );
+        })}
+        {!slots.length && (
+          <div className="admin-empty">
+            <IconGrid />
+            <p>Chưa có vị trí ảnh. Hãy tạo vị trí theo mẫu trước.</p>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+};
+
+export default AssetSlotBoard;

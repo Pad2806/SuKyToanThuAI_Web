@@ -17,27 +17,34 @@ export const FinalCta = () => {
   const eras = getAllEras();
 
   useEffect(() => {
-    if (!sectionRef.current) return;
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduced) return;
+    if (!sectionRef.current || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const ctx = gsap.context(() => {
-      gsap.fromTo('.final-cta__hero > *',
+      gsap.fromTo(
+        '.final-cta__hero > *',
         { y: 40, opacity: 0 },
-        { y: 0, opacity: 1, stagger: 0.12, duration: 0.9, ease: 'power3.out',
+        {
+          y: 0,
+          opacity: 1,
+          stagger: 0.12,
+          duration: 0.9,
+          ease: 'power3.out',
           scrollTrigger: { trigger: sectionRef.current, start: 'top 80%', toggleActions: 'play none none none' },
-        }
+        },
       );
 
-      const explorerEls = gsap.utils.toArray('.final-cta__explore > *');
-      if (explorerEls.length) {
-        gsap.fromTo(explorerEls,
-          { y: 30, opacity: 0 },
-          { y: 0, opacity: 1, stagger: 0.08, duration: 0.7, ease: 'power3.out',
-            scrollTrigger: { trigger: '.final-cta__explore', start: 'top 88%', toggleActions: 'play none none none' },
-          }
-        );
-      }
+      gsap.fromTo(
+        '.final-cta__explore > *',
+        { y: 30, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          stagger: 0.08,
+          duration: 0.7,
+          ease: 'power3.out',
+          scrollTrigger: { trigger: '.final-cta__explore', start: 'top 88%', toggleActions: 'play none none none' },
+        },
+      );
     }, sectionRef);
 
     return () => ctx.revert();
@@ -50,7 +57,6 @@ export const FinalCta = () => {
       </div>
 
       <div className="final-cta__inner discovery-inner">
-        {/* Hero CTA */}
         <div className="final-cta__hero">
           <p className="section-kicker">Mở trang sử tiếp theo</p>
           <h2>Bắt đầu bằng một sự kiện, kết thúc bằng một mạch hiểu</h2>
@@ -66,7 +72,6 @@ export const FinalCta = () => {
           </div>
         </div>
 
-        {/* Explorer merged section */}
         <div className="final-cta__explore">
           <div className="final-cta__search">
             <form action="/tim-kiem">

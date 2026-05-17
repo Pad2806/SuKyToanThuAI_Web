@@ -1,15 +1,15 @@
 /**
  * Chiến thắng Bạch Đằng 1288 — Rich storytelling data
  * Structured for the 6-part narrative format:
- * Hook → Setup → Rising Action → Climax → Aftermath → Takeaway
+ * Hook â†’ Setup â†’ Rising Action â†’ Climax â†’ Aftermath â†’ Takeaway
  */
 
 export const bachDang1288 = {
   id: 'event-bach-dang-1288',
   slug: 'chien-thang-bach-dang-1288',
   title: 'Chiến thắng Bạch Đằng năm 1288',
-  eraId: 'era-dai-viet',
-  eraSlug: 'nha-tran',
+  eraId: 'era-tran',
+  eraSlug: 'tran',
   year: 1288,
   gradeTags: ['THCS', 'THPT'],
 
@@ -24,7 +24,7 @@ export const bachDang1288 = {
   opponent: 'Quân Nguyên – Mông',
   result: 'Đại Việt chiến thắng',
 
-  /* ── Characters ── */
+  /* â”€â”€ Characters â”€â”€ */
   characters: [
     {
       id: 'tran-hung-dao',
@@ -64,7 +64,7 @@ export const bachDang1288 = {
     },
   ],
 
-  /* ── Timeline milestones ── */
+  /* â”€â”€ Timeline milestones â”€â”€ */
   timeline: [
     {
       id: 'step-1',
@@ -72,7 +72,7 @@ export const bachDang1288 = {
       month: 'Cuối năm',
       title: 'Quân Nguyên tiến vào Đại Việt',
       description: 'Thoát Hoan dẫn 30 vạn quân, Ô Mã Nhi chỉ huy đạo thủy quân từ biển tiến vào sông Bạch Đằng.',
-      icon: '⚔️',
+      icon: 'âš”ï¸',
       mood: 'tense',
     },
     {
@@ -81,7 +81,7 @@ export const bachDang1288 = {
       month: 'Tháng 1',
       title: 'Trần Khánh Dư chặn lương ở Vân Đồn',
       description: 'Đoàn thuyền lương bị phục kích tại Vân Đồn. Quân Nguyên mất nguồn tiếp tế chiến lược.',
-      icon: '🚢',
+      icon: 'ðŸš¢',
       mood: 'rising',
     },
     {
@@ -90,7 +90,7 @@ export const bachDang1288 = {
       month: 'Tháng 2',
       title: 'Quân Đại Việt chuẩn bị trận địa cọc ngầm',
       description: 'Trần Hưng Đạo cho đóng hàng ngàn cọc gỗ lim bọc sắt dưới lòng sông Bạch Đằng ở đoạn nước sâu, triều lên cao.',
-      icon: '🪵',
+      icon: 'ðŸªµ',
       mood: 'preparation',
     },
     {
@@ -99,7 +99,7 @@ export const bachDang1288 = {
       month: 'Tháng 3',
       title: 'Thủy triều lên, cọc chìm dưới nước',
       description: 'Khi triều lên, bãi cọc vô hình. Quân Đại Việt giả thua dụ chiến thuyền Nguyên tiến sâu vào trận địa.',
-      icon: '🌊',
+      icon: 'ðŸŒŠ',
       mood: 'tension',
     },
     {
@@ -108,7 +108,7 @@ export const bachDang1288 = {
       month: 'Ngày 9/4',
       title: 'Thủy triều rút — cọc gỗ lộ ra',
       description: 'Khi triều rút, hàng ngàn cọc nhọn nhô lên. Chiến thuyền Nguyên bị đâm thủng, mắc cạn, không thể tiến hay lui.',
-      icon: '⬇️',
+      icon: 'â¬‡ï¸',
       mood: 'climax',
     },
     {
@@ -117,7 +117,7 @@ export const bachDang1288 = {
       month: 'Ngày 9/4',
       title: 'Đại Việt phản công toàn diện',
       description: 'Quân Đại Việt tổng tấn công từ hai bên bờ sông. Ô Mã Nhi bị bắt sống. Đạo thủy quân Nguyên bị tiêu diệt hoàn toàn.',
-      icon: '🏆',
+      icon: 'ðŸ†',
       mood: 'victory',
     },
   ],
@@ -165,7 +165,7 @@ export const bachDang1288 = {
     ],
   },
 
-  /* ── Aftermath stats ── */
+  /* â”€â”€ Aftermath stats â”€â”€ */
   aftermath: {
     title: 'Kết quả trận Bạch Đằng 1288',
     stats: [
@@ -194,14 +194,14 @@ export const bachDang1288 = {
     },
   },
 
-  /* ── Takeaway ── */
+  /* â”€â”€ Takeaway â”€â”€ */
   takeaway: {
     happened: 'Trần Hưng Đạo dùng chiến thuật cọc ngầm trên sông Bạch Đằng, lợi dụng thủy triều tiêu diệt toàn bộ thủy quân Nguyên. Ô Mã Nhi bị bắt sống, Thoát Hoan rút chạy.',
     whyItMatters: 'Chiến thắng này kết thúc 30 năm Đại Việt chống xâm lược Mông–Nguyên (1258–1288) — đế chế quân sự hùng mạnh nhất thế giới thời bấy giờ. Đại Việt là một trong số ít quốc gia chiến thắng quân Mông Cổ.',
     lesson: 'Bạch Đằng 1288 dạy rằng: trí tuệ thắng sức mạnh. Hiểu biết về thiên nhiên (thủy triều), địa hình (sông), và tâm lý đối thủ (dụ địch) — tạo nên chiến thắng không cần quân số vượt trội.',
   },
 
-  /* ── Quiz ── */
+  /* â”€â”€ Quiz â”€â”€ */
   quiz: [
     {
       id: 'q1',
@@ -233,7 +233,7 @@ export const bachDang1288 = {
     },
   ],
 
-  /* ── Full story beats (6-part) ── */
+  /* â”€â”€ Full story beats (6-part) â”€â”€ */
   story: {
     templateType: 'battle',
     beats: [
@@ -301,3 +301,4 @@ export const bachDang1288 = {
     ],
   },
 };
+

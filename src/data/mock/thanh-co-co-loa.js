@@ -7,8 +7,8 @@ export const thanhCoCola = {
   id: 'event-co-loa',
   slug: 'thanh-co-co-loa',
   title: 'Thành Cổ Loa của An Dương Vương',
-  eraId: 'era-van-lang-au-lac',
-  eraSlug: 'van-lang-au-lac',
+  eraId: 'era-au-lac',
+  eraSlug: 'au-lac',
   year: -257,
   gradeTags: ['THCS', 'THPT'],
 
@@ -217,3 +217,4 @@ export const thanhCoCola = {
     ],
   },
 };
+

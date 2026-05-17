@@ -7,8 +7,8 @@ export const sonTinhThuyTinh = {
   id: 'event-son-tinh-thuy-tinh',
   slug: 'truyen-thuyet-son-tinh-thuy-tinh',
   title: 'Sơn Tinh - Thuỷ Tinh',
-  eraId: 'era-van-lang-au-lac',
-  eraSlug: 'van-lang-au-lac',
+  eraId: 'era-cac-vua-hung',
+  eraSlug: 'cac-vua-hung',
   year: -2500,
   gradeTags: ['TH'],
 
@@ -182,3 +182,4 @@ export const sonTinhThuyTinh = {
     ],
   },
 };
+

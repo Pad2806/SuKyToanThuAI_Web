@@ -118,7 +118,7 @@ export const TimelineRiver = () => {
       /* Card image parallax */
       gsap.utils.toArray('.timeline-era-block__image img').forEach((img) => {
         gsap.to(img, {
-          yPercent: -15,
+          yPercent: -3,
           ease: 'none',
           scrollTrigger: {
             trigger: img.parentElement,

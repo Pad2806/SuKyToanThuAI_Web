@@ -55,7 +55,7 @@ export const EventDetailPage = () => {
   }
 
   /* ── Fallback: basic event from static data ── */
-  const basicEvent = getEventBySlug(eventSlug);
+  const basicEvent = import.meta.env.DEV ? getEventBySlug(eventSlug) : null;
   const basicRelated = basicEvent ? getRelatedEvents({ eventId: basicEvent.id }) : [];
 
   if (!basicEvent && tried) {

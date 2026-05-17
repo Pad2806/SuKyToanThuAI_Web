@@ -6,11 +6,13 @@ import { formatHistoricalYear, getFeaturedEvents } from '../../lib/event-queries
 
 gsap.registerPlugin(ScrollTrigger);
 
-export const FeaturedCarousel = () => {
+const fallbackImage = '/images/generated/parchment.png';
+
+export const FeaturedCarousel = ({ events, loading = false } = {}) => {
   const sectionRef = useRef(null);
   const trackRef = useRef(null);
   const [hoveredIndex, setHoveredIndex] = useState(null);
-  const featured = getFeaturedEvents();
+  const featured = Array.isArray(events) ? events : getFeaturedEvents();
 
   useEffect(() => {
     if (!sectionRef.current) return;
@@ -52,14 +54,15 @@ export const FeaturedCarousel = () => {
         </div>
 
         <div className="featured-carousel__track" ref={trackRef}>
+          {!loading && featured.length === 0 && (
+            <div className="featured-carousel__empty">
+              <h3>Chưa có sự kiện nổi bật được public</h3>
+              <p>Hãy duyệt hoặc đánh dấu featured cho sự kiện trong Admin Studio để khối này cập nhật từ DB.</p>
+              <Link to="/tim-kiem">Xem tất cả sự kiện</Link>
+            </div>
+          )}
           {featured.map((event, i) => {
-            const cardImages = {
-              'event-hung-vuong': '/images/generated/hung-vuong.png',
-              'event-co-loa': '/images/generated/co-loa.png',
-              'event-hai-ba-trung': '/images/generated/hai-ba-trung.png',
-              'event-bach-dang': '/images/generated/bach-dang.png',
-            };
-            const imgSrc = cardImages[event.id] || event.image || '/images/generated/parchment.png';
+            const imgSrc = event.image || event.fallbackImage || fallbackImage;
 
             return (
               <Link
@@ -84,7 +87,7 @@ export const FeaturedCarousel = () => {
                     {event.location && <span className="featured-card__location">{event.location}</span>}
                   </div>
                   <h3>{event.title}</h3>
-                  <p>{event.excerpt}</p>
+                  <p>{event.excerpt || event.summary}</p>
                   <span className="featured-card__cta">
                     Đọc câu chuyện
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>

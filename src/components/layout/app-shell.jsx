@@ -24,8 +24,22 @@ const ScrollToTop = () => {
   return null;
 };
 
+/* Routes that bypass the public Navbar + Footer */
+const FULLSCREEN_ROUTES = ['/admin', '/dang-nhap'];
+
 export const AppShell = ({ children }) => {
   useSmoothScroll();
+  const { pathname } = useLocation();
+  const isFullscreen = FULLSCREEN_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`));
+
+  if (isFullscreen) {
+    return (
+      <>
+        <ScrollToTop />
+        {children}
+      </>
+    );
+  }
 
   return (
     <div className="app-shell">
@@ -38,3 +52,4 @@ export const AppShell = ({ children }) => {
 };
 
 export default AppShell;
+
