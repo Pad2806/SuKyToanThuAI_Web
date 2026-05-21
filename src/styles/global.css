@@ -18,8 +18,11 @@
 @import './homepage-sections.css';
 @import './event-storytelling.css';
 @import './history-scrolly.css';
-@import './event-interactive.css';
 @import './ai-studio.css';
+
+/* ── Event Template System (reusable across all events) ── */
+@import './event-template.css';
+@import './event-interactive.css';
 
 /* Story System — Themes */
 @import './themes/theme-vietnamese-history.css';
@@ -31,3 +34,6 @@
 /* Story System — Additional blocks */
 @import './story-system/story-related.css';
 @import './story-system/story-blocks.css';
+
+/* Event detail fullscreen storytelling overrides */
+@import './event-story.css';

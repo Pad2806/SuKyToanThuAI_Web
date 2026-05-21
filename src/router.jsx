@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import { Route, Routes } from 'react-router';
+import { Route, Routes, Navigate } from 'react-router';
 import { SuspenseLoader } from './components/shared/suspense-loader.jsx';
 
 const HomePage = lazy(() => import('./routes/home-page.jsx'));
@@ -28,6 +28,7 @@ export const AppRoutes = () => (
       <Route path="/su-kien/:eventSlug" element={<EventDetailPage />} />
       <Route path="/tim-kiem" element={<SearchPage />} />
       <Route path="/admin" element={<AdminPage />} />
+      <Route path="/quan-tri" element={<Navigate to="/admin" replace />} />
 
       <Route path="/noi-bat" element={<FeaturedIndexPage />} />
 

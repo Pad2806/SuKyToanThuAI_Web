@@ -3,17 +3,19 @@
    Gold accents, parchment tones, cinematic warmth
    ═══════════════════════════════════════════════ */
 [data-story-theme="vietnamese-history"] {
-  --bg-dark: #11100c;
-  --bg-dark-warm: #1c1710;
-  --bg-parchment: #f6edd9;
-  --bg-parchment-2: #eadbbf;
-  --surface-parchment: #f8efd8;
-  --text-on-dark: #efe4c9;
-  --text-on-parch: #211a12;
+  --bg-dark: #0d0b08;
+  --bg-dark-warm: #181310;
+  --bg-parchment: #f2e6cc;
+  --bg-parchment-2: #e8d9b8;
+  --surface-parchment: #f5ebd4;
+  --surface-elevated: rgba(201, 168, 76, 0.04);
+  --text-on-dark: #e8dcc4;
+  --text-on-parch: #1f1810;
   --gold: #c9a84c;
   --gold-dim: #80662d;
   --gold-glow: rgba(201, 168, 76, 0.15);
-  --ink-red: #7a2e2e;
-  --ink-green: #2e4a2e;
-  --divider: rgba(201, 168, 76, 0.2);
+  --ink-red: #8b3a3a;
+  --ink-green: #3a5a3a;
+  --ember: #c2703a;
+  --divider: rgba(201, 168, 76, 0.18);
 }

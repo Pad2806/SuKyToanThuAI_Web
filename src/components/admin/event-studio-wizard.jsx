@@ -1,7 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { EventStoryPage } from '../story-system/event-story-page.jsx';
 import { adminEventApi } from '../../lib/admin-event-api.js';
 import { AdminWorkQueue } from './admin-work-queue.jsx';
+import { AdminTabNav } from './admin-tab-nav.jsx';
 import { EventMetaForm } from './event-meta-form.jsx';
 import { SourceImportPanel } from './source-import-panel.jsx';
 import { AiDraftPanel } from './ai-draft-panel.jsx';
@@ -9,7 +10,9 @@ import { AssetSlotBoard } from './asset-slot-board.jsx';
 import { QualityGatePanel } from './quality-gate-panel.jsx';
 import { StoryInteractionsEditor } from './story-interactions-editor.jsx';
 import { AdminFlowChecklist, buildAdminFlowSteps } from './admin-flow-checklist.jsx';
-import { factsFromDraft, interactionsFromDraft, saveManualAsset, toPreviewEvent } from './event-studio-mappers.js';
+import { factsFromDraft, interactionsFromDraft, normalizeDraftEventData, saveManualAsset, toPreviewEvent } from './event-studio-mappers.js';
+import { isUsableImage } from '../../lib/image-utils.js';
+import { findTemplateDefinition } from '../../lib/admin-template-utils.js';
 
 const IconAlert = () => (
   <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -57,19 +60,48 @@ export const EventStudioWizard = () => {
   const [quality, setQuality] = useState(null);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState('');
+  const busyRef = useRef('');
+  const detailRequestRef = useRef(0);
+  const selectedIdRef = useRef(null);
+  const previewScrollRef = useRef(null);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [archiveConfirm, setArchiveConfirm] = useState(false);
+  const [activeTab, setActiveTab] = useState('info');
+
+  /* Close preview on Escape key + lock body scroll */
+  useEffect(() => {
+    if (!previewOpen) return;
+    const onKey = (e) => { if (e.key === 'Escape') setPreviewOpen(false); };
+    document.addEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
+    return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
+  }, [previewOpen]);
+
+
 
   useEffect(() => { boot(); }, []);
-  useEffect(() => { if (selectedId) loadDetail(selectedId); }, [selectedId]);
+  useEffect(() => {
+    selectedIdRef.current = selectedId;
+    if (selectedId) {
+      loadDetail(selectedId);
+      const contentEl = document.querySelector('.admin-studio-content');
+      if (contentEl) contentEl.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [selectedId]);
 
   const readOnly = detail?.event?.status && !['draft', 'review'].includes(detail.event.status);
-  const preview = useMemo(() => detail ? toPreviewEvent(detail) : null, [detail]);
+  const preview = useMemo(() => {
+    if (!detail) return null;
+    return toPreviewEvent(detail, draft?.payload?.eventData);
+  }, [detail, draft]);
   const qualityReport = quality?.quality || quality;
+  const templateDefinition = findTemplateDefinition(options, detail?.event?.template_type);
   const flowSteps = useMemo(() => buildAdminFlowSteps(detail, qualityReport), [detail, qualityReport]);
 
   const run = async (label, action) => {
+    if (busyRef.current) return null;
     setError('');
+    busyRef.current = label;
     setBusy(label);
     try {
       return await action();
@@ -77,6 +109,7 @@ export const EventStudioWizard = () => {
       setError(err.message);
       return null;
     } finally {
+      busyRef.current = '';
       setBusy('');
     }
   };
@@ -94,14 +127,32 @@ export const EventStudioWizard = () => {
     return rows;
   };
 
-  const loadDetail = async (id) => run('detail', async () => {
-    const [eventDetail, sources] = await Promise.all([adminEventApi.detail(id), adminEventApi.sources(id)]);
+  const loadDetailData = async (id, requestId = detailRequestRef.current) => {
+    const [eventDetail, rawSources] = await Promise.all([adminEventApi.detail(id), adminEventApi.sources(id)]);
+    if (requestId !== detailRequestRef.current || id !== selectedIdRef.current) return null;
+    const sources = Array.isArray(rawSources) ? rawSources : (rawSources?.items || rawSources?.data || []);
     setDetail({ ...eventDetail, sources });
     setDraft(null);
     setQuality(null);
-  });
+    return eventDetail;
+  };
 
-  const refresh = async () => selectedId && loadDetail(selectedId);
+  const loadDetail = async (id) => {
+    const requestId = detailRequestRef.current + 1;
+    detailRequestRef.current = requestId;
+    setError('');
+    const showDetailBusy = !busyRef.current;
+    if (showDetailBusy) setBusy('detail');
+    try {
+      await loadDetailData(id, requestId);
+    } catch (err) {
+      if (requestId === detailRequestRef.current) setError(err.message);
+    } finally {
+      if (showDetailBusy && requestId === detailRequestRef.current) setBusy('');
+    }
+  };
+
+  const refresh = async () => selectedIdRef.current && loadDetailData(selectedIdRef.current);
 
   const create = async (payload) => run('create', async () => {
     const row = await adminEventApi.create(payload);
@@ -135,11 +186,12 @@ export const EventStudioWizard = () => {
   const acceptDraft = async () => run('accept-draft', async () => {
     const payload = draft?.payload;
     if (!payload || !detail) return;
-    const data = payload.eventData;
+    const data = normalizeDraftEventData(payload.eventData);
     await adminEventApi.updateFacts(detail.event.id, factsFromDraft(data));
     await adminEventApi.updateStory(detail.event.id, {
       story: data.story,
       generationMetadata: {
+        ...(detail.story?.generation_metadata || {}),
         ...(payload.generationMetadata || {}),
         citations: payload.citations || [],
         coverageReport: payload.coverageReport || {},
@@ -157,21 +209,22 @@ export const EventStudioWizard = () => {
         <div className="admin-banner admin-banner--error" role="alert">
           <IconAlert />
           <span>{error}</span>
+          <button onClick={() => setError('')} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', fontSize: '16px', lineHeight: 1 }} type="button" aria-label="Đóng">✕</button>
         </div>
       )}
       {busy && (
-        <div className="admin-banner admin-banner--busy" aria-live="polite">
+        <div className="admin-toast-busy" aria-live="polite">
           <span className="admin-spinner" aria-hidden="true" />
-          <span>Đang xử lý: {busy}…</span>
+          <span>{busy}…</span>
         </div>
       )}
 
       <div className="admin-studio-layout">
-        <aside className="admin-studio-sidebar">
+        <aside className="admin-studio-sidebar" data-lenis-prevent="true">
           <AdminWorkQueue events={events} options={options} onCreate={create} onSelect={setSelectedId} selectedId={selectedId} />
         </aside>
 
-        <div className="admin-studio-content">
+        <div className="admin-studio-content" data-lenis-prevent="true">
           {detail && (
             <>
               <div className="admin-command-bar">
@@ -208,67 +261,109 @@ export const EventStudioWizard = () => {
                 </button>
               </div>
 
-              <AdminFlowChecklist steps={flowSteps} />
+              <AdminTabNav activeTab={activeTab} onChange={setActiveTab} flowSteps={flowSteps} />
 
-              <EventMetaForm
-                event={detail.event}
-                options={options}
-                readOnly={readOnly}
-                onSave={(payload) => run('save-facts', async () => {
-                  await adminEventApi.updateFacts(detail.event.id, payload);
-                  await refresh();
-                })}
-              />
-              <SourceImportPanel
-                disabled={readOnly}
-                eventId={detail.event.id}
-                onImport={(id, body) => run('import-source', async () => {
-                  await adminEventApi.importSource(id, body);
-                  await refresh();
-                })}
-                sources={detail.sources}
-              />
-              <AiDraftPanel
-                disabled={readOnly}
-                draft={draft}
-                sourceCount={detail.sources.length}
-                onAccept={acceptDraft}
-                onDraft={() => run('ai-draft', async () => setDraft(await adminEventApi.draftStory(detail.event.id, { sourceIds: detail.sources.map((item) => item.id) })))}
-              />
-              <StoryInteractionsEditor
-                event={detail.event}
-                story={detail.story}
-                readOnly={readOnly}
-                onSaveStory={(story) => run('save-story', async () => {
-                  await adminEventApi.updateStory(detail.event.id, { story, generationMetadata: { source: 'admin-editor' } });
-                  await refresh();
-                })}
-                onSaveInteractions={(payload) => run('save-interactions', async () => {
-                  await adminEventApi.updateInteractions(detail.event.id, payload);
-                  await refresh();
-                })}
-              />
-              <AssetSlotBoard
-                disabled={readOnly}
-                onEnsure={() => run('ensure-slots', async () => { await adminEventApi.ensureSlots(detail.event.id); await refresh(); })}
-                onImage={(slot) => run('generate-image', async () => { await adminEventApi.generateImage(detail.event.id, slot.id); await refresh(); })}
-                onManual={(slot, url) => run('manual-asset', async () => { await saveManualAsset(detail.event.id, slot, url); await refresh(); })}
-                onPrompts={() => run('asset-prompts', async () => { await adminEventApi.generatePrompts(detail.event.id); await refresh(); })}
-                onReview={(slot, status, note) => run('review-asset', async () => { await adminEventApi.reviewAsset(detail.event.id, slot.id, { status, reviewNotes: note }); await refresh(); })}
-                slots={detail.assets}
-              />
-              <QualityGatePanel
-                eventStatus={detail.event.status}
-                onCheck={() => run('quality', async () => setQuality(await adminEventApi.quality(detail.event.id)))}
-                onSubmitReview={submitReview}
-                onPublish={() => run('publish', async () => {
-                  setQuality(await adminEventApi.publish(detail.event.id));
-                  await refresh();
-                  await loadEvents();
-                })}
-                report={qualityReport}
-              />
+              <div className="admin-tab-content" role="tabpanel" aria-label={activeTab}>
+                {activeTab === 'info' && (
+                  <EventMetaForm
+                    event={detail.event}
+                    options={options}
+                    lesson={detail.lesson}
+                    readOnly={readOnly}
+                    onSave={(payload) => run('save-facts', async () => {
+                      await adminEventApi.updateFacts(detail.event.id, payload);
+                      await refresh();
+                    })}
+                    onAssignLesson={(lessonId) => run('assign-lesson', async () => {
+                      await adminEventApi.assignLesson(detail.event.id, { lessonId });
+                      await refresh();
+                    })}
+                  />
+                )}
+
+                {activeTab === 'sources' && (
+                  <>
+                    <SourceImportPanel
+                      busy={Boolean(busy)}
+                      disabled={readOnly}
+                      eventId={detail.event.id}
+                      onImport={(id, body) => run('import-source', async () => {
+                        await adminEventApi.importSource(id, body);
+                        await refresh();
+                      })}
+                      sources={detail.sources}
+                    />
+                    <AiDraftPanel
+                      busy={Boolean(busy)}
+                      disabled={readOnly}
+                      draft={draft}
+                      onDraftChange={(payload) => setDraft((current) => current ? { ...current, payload } : current)}
+                      sourceCount={detail.sources.length}
+                      onAccept={acceptDraft}
+                      onDraft={() => run('ai-draft', async () => setDraft(await adminEventApi.draftStory(detail.event.id, { sourceIds: detail.sources.map((item) => item.id) })))}
+                    />
+                  </>
+                )}
+
+                {activeTab === 'content' && (
+                  <>
+                    <StoryInteractionsEditor
+                      event={detail.event}
+                      story={detail.story}
+                      readOnly={readOnly}
+                      onSaveStory={(story) => run('save-story', async () => {
+                        await adminEventApi.updateStory(detail.event.id, {
+                          story,
+                          generationMetadata: {
+                            ...(detail.story?.generation_metadata || {}),
+                            source: 'admin-editor',
+                          },
+                        });
+                        await refresh();
+                      })}
+                      onSaveInteractions={(payload) => run('save-interactions', async () => {
+                        await adminEventApi.updateInteractions(detail.event.id, payload);
+                        await refresh();
+                      })}
+                    />
+                    <AssetSlotBoard
+                      disabled={readOnly}
+                      onEnsure={() => run('ensure-slots', async () => { await adminEventApi.ensureSlots(detail.event.id); await refresh(); })}
+                      onImage={(slot) => run('generate-image', async () => { await adminEventApi.generateImage(detail.event.id, slot.id); await refresh(); })}
+                      onManual={(slot, url) => run('manual-asset', async () => { await saveManualAsset(detail.event.id, slot, url); await refresh(); })}
+                      onPrompts={() => run('asset-prompts', async () => { await adminEventApi.generatePrompts(detail.event.id); await refresh(); })}
+                      onReview={(slot, status, note) => run('review-asset', async () => { await adminEventApi.reviewAsset(detail.event.id, slot.id, { status, reviewNotes: note }); await refresh(); })}
+                      assetUsage={preview?.assetUsage}
+                      slots={detail.assets}
+                      templateDefinition={templateDefinition}
+                    />
+                  </>
+                )}
+
+                {activeTab === 'publish' && (
+                  <>
+                    <AdminFlowChecklist steps={flowSteps} />
+                    <QualityGatePanel
+                      eventStatus={detail.event.status}
+                      onCheck={() => run('quality', async () => setQuality(await adminEventApi.quality(detail.event.id)))}
+                      onSubmitReview={submitReview}
+                      onPublish={() => run('publish', async () => {
+                        setQuality(await adminEventApi.publish(detail.event.id));
+                        await refresh();
+                        await loadEvents();
+                      })}
+                      report={qualityReport}
+                    />
+                  </>
+                )}
+              </div>
             </>
+          )}
+          {!detail && busy && (
+            <div className="admin-loading-overlay">
+              <span className="admin-spinner" aria-hidden="true" />
+              <span>Đang tải dữ liệu…</span>
+            </div>
           )}
           {!detail && !busy && (
             <div className="admin-empty">
@@ -281,11 +376,80 @@ export const EventStudioWizard = () => {
         </div>
       </div>
 
-      {previewOpen && preview && (
-        <section className="admin-preview">
-          <EventStoryPage data={preview} />
-        </section>
-      )}
+      {previewOpen && preview && (() => {
+        const beats = preview.story?.beats ?? [];
+        const hasContent = beats.length > 0;
+        const hasImage = isUsableImage(preview.image, { allowDefault: false });
+        const missingClimax = (preview.climaxScene?.phases || []).filter((_, index) => (
+          !isUsableImage(preview.climaxScene?.phaseImages?.[index], { allowDefault: false })
+        ));
+        const warningGroups = [
+          {
+            title: 'Nội dung',
+            items: [
+              !hasContent && 'Nội dung bài viết chưa có: nhập nguồn và tạo bản nháp AI.',
+              (preview.characters ?? []).length === 0 && 'Chưa có nhân vật lịch sử trong phần tương tác.',
+              (preview.timeline ?? []).length === 0 && 'Chưa có dòng thời gian sự kiện.',
+              (preview.quiz ?? []).length < 3 && 'Chưa đủ 3 câu hỏi trắc nghiệm.',
+            ].filter(Boolean),
+          },
+          {
+            title: 'Hình ảnh',
+            items: [
+              !hasImage && 'Ảnh bìa chưa được tạo hoặc chưa duyệt.',
+              missingClimax.length > 0 && `Thiếu ${missingClimax.length} ảnh cao trào.`,
+              ...(preview.assetUsage?.missingRequired || []).map((item) => `${item.slotLabel || item.slotKey} chưa có ảnh đạt yêu cầu.`),
+              ...(preview.assetUsage?.unused || []).map((item) => `${item.slotLabel || item.slotKey} đã tạo nhưng chưa dùng trong preview.`),
+            ].filter(Boolean),
+          },
+        ].filter((group) => group.items.length > 0);
+        return (
+          <div className="admin-preview-overlay">
+            {warningGroups.length > 0 && (
+              <div className="admin-preview-notice" role="status">
+                <div className="admin-preview-notice__icon">
+                  <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                  </svg>
+                </div>
+                <div className="admin-preview-notice__body">
+                  <strong>Xem trước chưa đầy đủ</strong>
+                  <p>Hoàn thiện các mục dưới đây để trang public không thiếu nội dung hoặc ảnh.</p>
+                  {warningGroups.map((group) => (
+                    <div className="admin-preview-warning-group" key={group.title}>
+                      <span>{group.title}</span>
+                      <ul>
+                        {group.items.map((step, i) => <li key={i}>{step}</li>)}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+                <button onClick={() => setPreviewOpen(false)} className="admin-preview-notice__close" type="button" aria-label="Đóng thông báo">✕</button>
+              </div>
+            )}
+            <div
+              className="admin-preview-scroll"
+              data-lenis-prevent="true"
+              onClick={(e) => { if (e.target === e.currentTarget) setPreviewOpen(false); }}
+              ref={previewScrollRef}
+            >
+              <div className="admin-preview-overlay__inner">
+                <EventStoryPage data={preview} previewMode scrollContainerRef={previewScrollRef} />
+              </div>
+            </div>
+            <button
+              onClick={() => setPreviewOpen(false)}
+              className="admin-preview-close"
+              type="button"
+              aria-label="Đóng xem trước"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
+        );
+      })()}
 
       {archiveConfirm && (
         <ConfirmModal

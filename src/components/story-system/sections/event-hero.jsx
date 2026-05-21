@@ -8,14 +8,16 @@ import { formatHistoricalYear } from '../../../lib/event-queries.js';
  * Renders the immersive entry point for every historical event.
  * All content driven by the event data object.
  */
-export const EventHero = ({ event, heroScrolled }) => {
+export const EventHero = ({ event, heroScrolled, previewMode = false }) => {
   const heroRef = useRef(null);
-  useHeroAnimation(heroRef);
+  useHeroAnimation(heroRef, previewMode);
+
+  const heroImage = (event.image || '').trim() ? event.image : (event.fallbackImage || '/images/generated/parchment.png');
 
   return (
     <header className="evt-hero" ref={heroRef} id="evt-hook">
       <div className="evt-hero__bg" aria-hidden="true">
-        <img alt="" src={event.image ?? '/images/generated/parchment.png'} />
+        <img alt="" src={heroImage} />
         <div className="evt-hero__vignette" />
         <div className="evt-hero__grain" />
       </div>

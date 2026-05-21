@@ -1,36 +1,76 @@
+/* ═══════════════════════════════════════════════
+   Design Tokens — "Chiếu Rồng" (Dragon Scroll)
+   Vietnamese historical storytelling system
+   ═══════════════════════════════════════════════ */
 :root {
-  --bg-dark: #11100c;
-  --bg-dark-warm: #1c1710;
-  --bg-parchment: #f6edd9;
-  --bg-parchment-2: #eadbbf;
-  --surface-parchment: #f8efd8;
-  --text-on-dark: #efe4c9;
-  --text-on-parch: #211a12;
+  /* ── Backgrounds ── */
+  --bg-dark: #0d0b08;
+  --bg-dark-warm: #181310;
+  --bg-parchment: #f2e6cc;
+  --bg-parchment-2: #e8d9b8;
+  --surface-parchment: #f5ebd4;
+  --surface-elevated: rgba(201, 168, 76, 0.04);
+
+  /* ── Text ── */
+  --text-on-dark: #e8dcc4;
+  --text-on-parch: #1f1810;
   --text-muted: #786a54;
+
+  /* ── Accents ── */
   --gold: #c9a84c;
   --gold-dim: #80662d;
   --gold-glow: rgba(201, 168, 76, 0.15);
-  --ink-red: #7a2e2e;
-  --ink-green: #2e4a2e;
-  --divider: rgba(201, 168, 76, 0.2);
+  --gold-bright: #dabe6a;
+  --ink-red: #8b3a3a;
+  --ink-red-dim: rgba(139, 58, 58, 0.15);
+  --ink-green: #3a5a3a;
+  --ink-green-dim: rgba(58, 90, 58, 0.15);
+  --ember: #c2703a;
+  --ember-glow: rgba(194, 112, 58, 0.12);
+
+  /* ── Dividers & borders ── */
+  --divider: rgba(201, 168, 76, 0.18);
+  --border-subtle: rgba(201, 168, 76, 0.08);
+
+  /* ── Typography ── */
   --font-logo: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
   --font-display: 'Playfair Display', Georgia, serif;
   --font-body: 'Be Vietnam Pro', 'Segoe UI', sans-serif;
   --font-ui: 'Be Vietnam Pro', 'Segoe UI', sans-serif;
-  --t-hero: clamp(56px, 8vw, 120px);
-  --t-h1: clamp(36px, 5vw, 72px);
+
+  /* ── Type Scale ── */
+  --t-hero: clamp(48px, 7vw, 110px);
+  --t-h1: clamp(32px, 5vw, 64px);
   --t-h2: clamp(24px, 3vw, 40px);
   --t-h3: clamp(20px, 2.5vw, 28px);
-  --t-body: clamp(16px, 1.5vw, 20px);
+  --t-body: clamp(16px, 1.5vw, 19px);
   --t-caption: clamp(12px, 1.2vw, 14px);
   --t-ui: 13px;
-  --lh-display: 1.05;
+
+  /* ── Line Heights ── */
+  --lh-display: 1.08;
   --lh-body: 1.75;
   --lh-ui: 1.4;
-  --ls-hero: 0;
+
+  /* ── Letter Spacing ── */
+  --ls-hero: -0.02em;
   --ls-caption: 0.08em;
   --ls-ui: 0.04em;
+
+  /* ── Motion ── */
   --ease-page: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 200ms;
+  --duration-base: 350ms;
+  --duration-slow: 600ms;
+
+  /* ── Shadows ── */
   --shadow-warm: 0 24px 60px rgba(42, 28, 12, 0.22);
+  --shadow-deep: 0 40px 80px rgba(13, 11, 8, 0.5);
+  --shadow-glow: 0 0 40px rgba(201, 168, 76, 0.08);
+
+  /* ── Z-index ── */
   --z-sticky: 20;
+  --z-toc: 90;
+  --z-progress: 25;
 }

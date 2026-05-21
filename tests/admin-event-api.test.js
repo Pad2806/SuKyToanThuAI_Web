@@ -35,4 +35,33 @@ describe('admin event API client', () => {
     expect(calls[4].options.method).toBe('POST');
     expect(calls[4].options.headers.get('Content-Type')).toBeNull();
   });
+
+  it('formats FastAPI validation errors as readable messages', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: false,
+      status: 422,
+      json: async () => ({
+        detail: [{
+          loc: ['body', 'slug'],
+          msg: 'String should have at least 2 characters',
+        }],
+      }),
+    })));
+
+    await expect(adminEventApi.create({ title: 'Do', slug: 'o' }))
+      .rejects
+      .toThrow('slug: String should have at least 2 characters');
+  });
+
+  it('does not coerce object error details to [object Object]', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      json: async () => ({ detail: { reason: 'bad payload' } }),
+    })));
+
+    await expect(adminEventApi.create({}))
+      .rejects
+      .toThrow('{"reason":"bad payload"}');
+  });
 });

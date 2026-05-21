@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router';
 
 const grades = [
   { label: 'Lớp 4', to: '/khoi-lop/4' },
@@ -21,12 +21,10 @@ export const Navbar = () => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsGradeOpen(false);
-      }
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) setIsGradeOpen(false);
     };
-    const handleEscape = (e) => {
-      if (e.key === 'Escape') setIsGradeOpen(false);
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') setIsGradeOpen(false);
     };
 
     document.addEventListener('mousedown', handleClickOutside);
@@ -41,43 +39,37 @@ export const Navbar = () => {
     setIsGradeOpen(false);
   }, [location.pathname]);
 
-  const handleLogoClick = useCallback((e) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const scrollToTop = useCallback(() => {
+    if (window.__lenis) window.__lenis.scrollTo(0, { immediate: true, force: true });
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, []);
 
-    const scrollToTop = () => {
-      // Reset Lenis
-      if (window.__lenis) {
-        window.__lenis.scrollTo(0, { immediate: true, force: true });
-      }
-      // Reset native scroll (multiple methods for reliability)
-      window.scrollTo(0, 0);
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
-    };
+  const handleLogoClick = useCallback((event) => {
+    event.preventDefault();
+    event.stopPropagation();
 
     if (location.pathname === '/') {
       scrollToTop();
-    } else {
-      navigate('/');
-      scrollToTop();
-      // Also reset after React re-render
-      setTimeout(scrollToTop, 50);
-      setTimeout(scrollToTop, 150);
+      return;
     }
-  }, [navigate, location.pathname]);
 
-  const scrollToSearch = (e) => {
-    e.preventDefault();
+    navigate('/');
+    scrollToTop();
+    setTimeout(scrollToTop, 50);
+    setTimeout(scrollToTop, 150);
+  }, [location.pathname, navigate, scrollToTop]);
+
+  const scrollToSearch = (event) => {
+    event.preventDefault();
     const searchInput = document.getElementById('footer-search');
     if (searchInput) {
-      // Cuộn mượt mà đến ô tìm kiếm và tự động focus
       searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
       setTimeout(() => searchInput.focus(), 500);
-    } else {
-      // Nếu đang ở trang khác, chuyển hướng về trang chủ
-      window.location.href = '/#footer-search';
+      return;
     }
+    window.location.href = '/#footer-search';
   };
 
   return (
@@ -89,45 +81,31 @@ export const Navbar = () => {
           </span>
         </a>
         <div className="site-nav__links">
-          <div
-            className="site-nav__dropdown"
-            ref={dropdownRef}
-            onMouseEnter={() => setIsGradeOpen(true)}
-            onMouseLeave={() => setIsGradeOpen(false)}
-          >
-            <button
-              className="site-nav__link grade-dropdown-trigger"
-              onClick={() => setIsGradeOpen(!isGradeOpen)}
-              aria-expanded={isGradeOpen}
-            >
+          <div className="site-nav__dropdown" ref={dropdownRef} onMouseEnter={() => setIsGradeOpen(true)} onMouseLeave={() => setIsGradeOpen(false)}>
+            <button className="site-nav__link grade-dropdown-trigger" onClick={() => setIsGradeOpen(!isGradeOpen)} aria-expanded={isGradeOpen} type="button">
               Khối lớp <span className={`site-nav__dropdown-caret ${isGradeOpen ? 'open' : ''}`}>▼</span>
             </button>
             {isGradeOpen && (
               <div className="grade-dropdown">
                 {grades.map((item) => (
-                  <Link
-                    className="grade-dropdown-item"
-                    key={item.to}
-                    to={item.to}
-                    onClick={() => setIsGradeOpen(false)}
-                  >
+                  <Link className="grade-dropdown-item" key={item.to} to={item.to} onClick={() => setIsGradeOpen(false)}>
                     {item.label}
                   </Link>
                 ))}
               </div>
             )}
           </div>
-          <Link className="site-nav__link site-nav__link--ai" to="/khong-gian-ai">
-            AI Studio
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: 6, opacity: 0.8 }}>
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          <Link className="site-nav__link site-nav__link--ai" to="/khong-gian-ai" aria-label="AI Studio">
+            <span className="site-nav__link-text">AI Studio</span>
+            <svg className="site-nav__icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
             </svg>
           </Link>
-          <a href="#search" className="site-nav__link site-nav__link--search" onClick={scrollToSearch}>
-            Tìm kiếm
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: 6, opacity: 0.8 }}>
-               <circle cx="11" cy="11" r="8"></circle>
-               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          <a href="#search" className="site-nav__link site-nav__link--search" onClick={scrollToSearch} aria-label="Tìm kiếm">
+            <span className="site-nav__link-text">Tìm kiếm</span>
+            <svg className="site-nav__icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
           </a>
         </div>

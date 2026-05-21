@@ -12,7 +12,7 @@ export const LoginPage = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (user) navigate('/khong-gian-ai', { replace: true });
+    if (user) navigate(user.role === 'admin' ? '/admin' : '/khong-gian-ai', { replace: true });
   }, [navigate, user]);
 
   const handleSubmit = async (e) => {
@@ -21,16 +21,10 @@ export const LoginPage = () => {
     setLoading(true);
 
     try {
-      if (mode === 'register') {
-        await register({
-          email: form.email,
-          password: form.password,
-          displayName: form.email.split('@')[0],
-        });
-      } else {
-        await login(form);
-      }
-      navigate('/khong-gian-ai');
+      const loggedInUser = mode === 'register'
+        ? await register({ email: form.email, password: form.password, displayName: form.email.split('@')[0] })
+        : await login(form);
+      navigate(loggedInUser.role === 'admin' ? '/admin' : '/khong-gian-ai');
     } catch (err) {
       setError(err.message || 'Không thể xác thực. Vui lòng thử lại.');
     } finally {

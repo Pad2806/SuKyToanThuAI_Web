@@ -1,87 +1,95 @@
-import React, { useState } from 'react';
+import React from 'react';
 
-const sideLabels = {
-  'dai-viet': 'Đại Việt',
-  'nguyen-mong': 'Nguyên – Mông',
+const allySides = new Set([
+  'ally',
+  'dai-viet',
+  'nhan-dan',
+  'quân ta',
+  'quan ta',
+  'quan-khoi-nghia',
+  'tay-son',
+  'viet-minh',
+  'vndcch',
+]);
+
+export function isAllySide(side) {
+  if (!side) return true;
+  return allySides.has(String(side).toLowerCase());
+}
+
+export function normalizeSide(side) {
+  return isAllySide(side) ? 'Quân ta' : 'Đối phương';
+}
+
+const shortText = (value, fallback = '') => {
+  const text = Array.isArray(value) ? value.join(', ') : value || fallback || '';
+  return text.length > 180 ? `${text.slice(0, 177).trim()}...` : text;
 };
 
-export const CharacterCard = ({ character, index }) => {
-  const [expanded, setExpanded] = useState(false);
-  const isDaiViet = character.side === 'dai-viet';
+const pairCharacters = (characters) => {
+  const rows = [];
+  for (let index = 0; index < characters.length; index += 2) {
+    rows.push(characters.slice(index, index + 2));
+  }
+  return rows;
+};
+
+export const CharacterCard = ({ character, fallbackImage, single = false }) => {
+  const isAlly = isAllySide(character.side);
+  const sideName = normalizeSide(character.side);
+  const image = character.portrait || character.image || fallbackImage || '/images/generated/parchment.png';
+  const contribution = shortText(character.contribution || character.description, character.bio);
+  const standout = character.standout || character.traits || character.trait || character.keyDetail || character.quote;
 
   return (
-    <button
-      className={`char-card ${expanded ? 'char-card--open' : ''} ${isDaiViet ? 'char-card--ally' : 'char-card--enemy'}`}
-      onClick={() => setExpanded((prev) => !prev)}
-      type="button"
-      aria-expanded={expanded}
+    <article
+      className={[
+        'char-profile',
+        'char-profile--cinematic',
+        'char-profile--screen',
+        single && 'char-profile--single',
+        isAlly ? 'char-profile--ally' : 'char-profile--enemy',
+      ].filter(Boolean).join(' ')}
+      style={{ backgroundImage: `url(${image})` }}
     >
-      {/* Top accent bar */}
-      <div className="char-card__accent" aria-hidden="true" />
-
-      <div className="char-card__header">
-        <div className="char-card__avatar">
-          {character.portrait ? (
-            <img
-              className="char-card__portrait"
-              src={character.portrait}
-              alt={`Chân dung ${character.name}`}
-              loading="lazy"
-            />
-          ) : (
-            <span className="char-card__initial" aria-hidden="true">
-              {character.name.charAt(0)}
-            </span>
-          )}
-        </div>
-        <div className="char-card__info">
-          <span className="char-card__side">{sideLabels[character.side] ?? ''}</span>
-          <span className="char-card__name">{character.name}</span>
-          <span className="char-card__role">{character.role}</span>
-        </div>
-        <svg className="char-card__chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-          <path d="M6 9l6 6 6-6" />
-        </svg>
+      <div className="char-profile__shade" aria-hidden="true" />
+      <div className="char-profile__details">
+        <span className="char-profile__side">{sideName}</span>
+        <h3 className="char-profile__name">{character.name}</h3>
+        <span className="char-profile__role">{character.role}</span>
+        {standout && <p className="char-profile__standout">{shortText(standout, '')}</p>}
+        {contribution && <p className="char-profile__bio">{contribution}</p>}
       </div>
-
-      {expanded && (
-        <div className="char-card__body">
-          <p className="char-card__bio">{character.bio}</p>
-          {character.quote && (
-            <blockquote className="char-card__quote">
-              <p>{character.quote}</p>
-            </blockquote>
-          )}
-        </div>
-      )}
-    </button>
+    </article>
   );
 };
 
-export const CharacterGrid = ({ characters }) => {
-  const allies = characters.filter((c) => c.side === 'dai-viet');
-  const enemies = characters.filter((c) => c.side !== 'dai-viet');
+export const CharacterGrid = ({
+  characters,
+  fallbackImage,
+  showTitle = true,
+}) => {
+  const rows = pairCharacters(characters);
 
   return (
-    <div className="char-grid">
-      <h3 className="char-grid__title">Nhân vật chính</h3>
-      <div className="char-grid__sides">
-        {allies.length > 0 && (
-          <div className="char-grid__group">
-            <span className="char-grid__group-label char-grid__group-label--ally">Đại Việt</span>
-            <div className="char-grid__stack">
-              {allies.map((c, i) => <CharacterCard key={c.id} character={c} index={i} />)}
-            </div>
+    <div className="char-section char-section--rows">
+      {showTitle && <h3 className="char-section__title">Nhân vật chính</h3>}
+      <div className="char-section__rows">
+        {rows.map((row, rowIndex) => (
+          <div
+            className={`char-row ${row.length === 1 ? 'char-row--single' : ''}`}
+            key={`character-row-${rowIndex}`}
+          >
+            {row.map((character) => (
+              <CharacterCard
+                key={character.id || character.name}
+                character={character}
+                fallbackImage={fallbackImage}
+                single={row.length === 1}
+              />
+            ))}
           </div>
-        )}
-        {enemies.length > 0 && (
-          <div className="char-grid__group">
-            <span className="char-grid__group-label char-grid__group-label--enemy">Nguyên – Mông</span>
-            <div className="char-grid__stack">
-              {enemies.map((c, i) => <CharacterCard key={c.id} character={c} index={i} />)}
-            </div>
-          </div>
-        )}
+        ))}
       </div>
     </div>
   );

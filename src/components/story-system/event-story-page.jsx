@@ -1,51 +1,38 @@
-import React, { useRef, useMemo } from 'react';
-
-/* ── Hooks ── */
-import {
-  buildSectionDefs,
-  useStorySections,
-  useStoryBeats,
-} from './hooks/use-story-sections.js';
-import { useSectionAnimations } from './hooks/use-story-animations.js';
-import { useStoryTheme } from './hooks/use-story-theme.js';
-
-/* ── Navigation ── */
-import { StoryTOC } from './navigation/story-toc.jsx';
-import { StoryProgressIndicator } from '../story-interactive/story-progress-indicator.jsx';
+import React, { useMemo, useRef } from 'react';
 import { ReadingProgressBar } from '../story/reading-progress-bar.jsx';
-
-/* ── Sections ── */
-import { EventHero } from './sections/event-hero.jsx';
-import { SetupSection } from './sections/setup-section.jsx';
-import { RisingSection } from './sections/rising-section.jsx';
-import { ClimaxSection } from './sections/climax-section.jsx';
+import { CharacterGrid } from '../story-interactive/character-card.jsx';
+import { StoryProgressIndicator } from '../story-interactive/story-progress-indicator.jsx';
+import { useSectionAnimations } from './hooks/use-story-animations.js';
+import { useStoryBeats, useStorySections } from './hooks/use-story-sections.js';
+import { useStoryTheme } from './hooks/use-story-theme.js';
+import { StoryTOC } from './navigation/story-toc.jsx';
 import { AftermathSection } from './sections/aftermath-section.jsx';
-import { TakeawaySection } from './sections/takeaway-section.jsx';
+import { ClimaxSection } from './sections/climax-section.jsx';
+import { EventHero } from './sections/event-hero.jsx';
+import { RisingSection } from './sections/rising-section.jsx';
+import { SetupSection } from './sections/setup-section.jsx';
 
-/**
- * EventStoryPage — The top-level orchestrator.
- *
- * Usage:
- *   <EventStoryPage data={eventData} />
- *   <EventStoryPage data={eventData} relatedEvents={relatedEvents} />
- *
- * This is a SYSTEM, not a page.
- * It composes section components, resolves themes, and manages
- * scroll tracking — all driven by the data object.
- *
- * To add a new event, create a data file and pass it here.
- * No code changes required.
- */
-export const EventStoryPage = ({ data, relatedEvents = [] }) => {
+const STORY_SECTION_DEFS = [
+  { id: 'evt-setup', type: 'setup', label: 'Bối cảnh', numeral: 'I' },
+  { id: 'evt-characters', type: 'characters', label: 'Nhân vật chính', numeral: 'II' },
+  { id: 'evt-rising', type: 'rising', label: 'Diễn biến', numeral: 'III' },
+  { id: 'evt-climax', type: 'climax', label: 'Cao trào', numeral: 'IV' },
+  { id: 'evt-tactical-map', type: 'tactical-map', label: 'Bản đồ chiến thuật', numeral: 'V' },
+  { id: 'evt-outcomes', type: 'outcomes', label: 'Hệ quả và bài học', numeral: 'VI' },
+];
+
+const sectionByType = (type) => STORY_SECTION_DEFS.find((section) => section.type === type);
+
+export const EventStoryPage = ({
+  data,
+  relatedEvents = [],
+  previewMode = false,
+  scrollContainerRef = null,
+}) => {
   const containerRef = useRef(null);
-
-  /* ── Derive section definitions from data ── */
   const beats = data.story?.beats ?? [];
-  const sectionDefs = useMemo(() => buildSectionDefs(beats), [beats]);
 
-  /* ── Extract individual beats ── */
   const {
-    hookBeat,
     setupBeat,
     risingBeat,
     climaxBeat,
@@ -53,82 +40,107 @@ export const EventStoryPage = ({ data, relatedEvents = [] }) => {
     takeawayBeat,
   } = useStoryBeats(beats);
 
-  /* ── Resolve theme ── */
   const { themeId, getSectionVariant } = useStoryTheme(data.theme);
 
-  /* ── Section tracking ── */
-  const { activeIndex, heroScrolled, handleNavClick } = useStorySections(sectionDefs);
+  const sectionDefs = useMemo(() => (
+    STORY_SECTION_DEFS.filter((section) => {
+      if (section.type === 'setup') return Boolean(setupBeat);
+      if (section.type === 'characters') return (data.characters ?? []).length > 0;
+      if (section.type === 'rising') return Boolean(risingBeat || data.timeline?.length);
+      if (section.type === 'climax') return Boolean(climaxBeat || data.climaxScene);
+      if (section.type === 'tactical-map') {
+        return Boolean(data.climaxScene?.backgroundImage && data.climaxScene?.hotspots?.length);
+      }
+      if (section.type === 'outcomes') {
+        return Boolean(fallingBeat || takeawayBeat || data.aftermath || data.takeaway);
+      }
+      return false;
+    })
+  ), [climaxBeat, data, fallingBeat, risingBeat, setupBeat, takeawayBeat]);
 
-  /* ── Scroll animations ── */
-  useSectionAnimations(containerRef);
+  const { activeIndex, heroScrolled, handleNavClick } = useStorySections(previewMode ? [] : sectionDefs);
+  useSectionAnimations(previewMode ? { current: null } : containerRef);
 
   return (
     <article
-      className="evt-story"
+      className="evt-story evt-story--fullscreen"
       ref={containerRef}
       data-story-theme={themeId}
       data-event-type={data.type}
+      data-preview-mode={previewMode || undefined}
     >
-      <ReadingProgressBar />
-      <StoryProgressIndicator sections={sectionDefs} />
+      {!previewMode && <ReadingProgressBar />}
 
-      {/* ═══ I. HOOK — Full-screen Cinematic Hero ═══ */}
-      <EventHero event={data} heroScrolled={heroScrolled} />
+      <EventHero event={data} heroScrolled={heroScrolled} previewMode={previewMode} />
 
-      {/* ═══ Sticky TOC ═══ */}
-      <StoryTOC
-        sections={sectionDefs}
-        activeIndex={activeIndex}
-        onNavClick={handleNavClick}
-      />
+      {!previewMode && <StoryProgressIndicator sections={sectionDefs} />}
 
-      {/* ═══ II. SETUP — Context & Characters ═══ */}
+      {!previewMode && (
+        <StoryTOC
+          sections={sectionDefs}
+          activeIndex={activeIndex}
+          onNavClick={handleNavClick}
+        />
+      )}
+
       {setupBeat && (
         <SetupSection
           beat={setupBeat}
           event={data}
-          sectionDef={sectionDefs.find((s) => s.type === 'setup')}
+          sectionDef={sectionByType('setup')}
           variant={getSectionVariant(1)}
         />
       )}
 
-      {/* ═══ III. RISING ACTION — Timeline ═══ */}
-      {risingBeat && (
+      {data.characters?.length > 0 && (
+        <section className="evt-section evt-section--characters" id="evt-characters">
+          <div className="evt-characters-heading">
+            <div className="evt-section__header">
+              <div className="evt-section__eyebrow">
+                <span className="evt-section__numeral">II</span>
+                <span className="evt-section__eyebrow-text">Nhân vật</span>
+              </div>
+              <h2 className="evt-section__title">Nhân vật chính</h2>
+              <div className="evt-section__divider" aria-hidden="true" />
+            </div>
+          </div>
+          <div className="evt-section__body evt-characters-body">
+            <CharacterGrid
+              characters={data.characters}
+              fallbackImage={data.image || data.fallbackImage}
+              showTitle={false}
+            />
+          </div>
+        </section>
+      )}
+
+      {(risingBeat || data.timeline?.length > 0) && (
         <RisingSection
           beat={risingBeat}
           event={data}
-          sectionDef={sectionDefs.find((s) => s.type === 'rising')}
+          sectionDef={sectionByType('rising')}
           variant={getSectionVariant(2)}
+          scrollContainerRef={scrollContainerRef}
         />
       )}
 
-      {/* ═══ IV. CLIMAX — WOW Moment ═══ */}
-      {climaxBeat && (
+      {(climaxBeat || data.climaxScene) && (
         <ClimaxSection
           beat={climaxBeat}
           event={data}
-          sectionDef={sectionDefs.find((s) => s.type === 'climax')}
+          sectionDef={sectionByType('climax')}
+          mapSectionDef={sectionByType('tactical-map')}
           variant={getSectionVariant(3)}
         />
       )}
 
-      {/* ═══ V. AFTERMATH ═══ */}
-      {fallingBeat && (
+      {(fallingBeat || takeawayBeat || data.aftermath || data.takeaway) && (
         <AftermathSection
           beat={fallingBeat}
+          takeawayBeat={takeawayBeat}
           event={data}
-          sectionDef={sectionDefs.find((s) => s.type === 'falling')}
+          sectionDef={sectionByType('outcomes')}
           variant={getSectionVariant(4)}
-        />
-      )}
-
-      {/* ═══ VI. TAKEAWAY ═══ */}
-      {takeawayBeat && (
-        <TakeawaySection
-          beat={takeawayBeat}
-          event={data}
-          sectionDef={sectionDefs.find((s) => s.type === 'takeaway')}
-          variant={getSectionVariant(5)}
           relatedEvents={relatedEvents}
         />
       )}

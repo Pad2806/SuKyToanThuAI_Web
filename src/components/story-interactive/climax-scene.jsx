@@ -1,165 +1,200 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const PHASE_IMAGES = [
-  '/images/generated/bach-dang-phase-1.png',
-  '/images/generated/bach-dang-phase-2.png',
-  '/images/generated/bach-dang-phase-3.png',
-  '/images/generated/bach-dang-phase-4.png',
-];
+const getTooltipPlacement = (hotspot) => {
+  const isRightEdge = hotspot.x > 68;
+  const isLeftEdge = hotspot.x < 32;
+  const isLowerHalf = hotspot.y > 50;
+
+  return {
+    left: isRightEdge ? 'auto' : `${hotspot.x}%`,
+    right: isRightEdge ? `${100 - hotspot.x}%` : 'auto',
+    top: isLowerHalf ? 'auto' : `${Math.min(hotspot.y + 7, 78)}%`,
+    bottom: isLowerHalf ? `${Math.min(100 - hotspot.y + 7, 78)}%` : 'auto',
+    transform: isLeftEdge || isRightEdge ? 'none' : 'translateX(-50%)',
+  };
+};
 
 export const ClimaxScene = ({ scene }) => {
   const [activePhase, setActivePhase] = useState(0);
-  const [activeHotspot, setActiveHotspot] = useState(null);
-  const [transitioning, setTransitioning] = useState(false);
   const containerRef = useRef(null);
-  const imageRef = useRef(null);
+  const phases = scene?.phases ?? [];
 
-  /* ── Scroll-triggered entrance ── */
   useEffect(() => {
-    if (!containerRef.current) return;
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduced) return;
+    if (!containerRef.current || phases.length === 0) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const container = containerRef.current;
 
     const ctx = gsap.context(() => {
-      gsap.from('.climax-scene__viewport', {
-        scale: 0.92, opacity: 0, duration: 1.5, ease: 'power3.out',
-        scrollTrigger: { trigger: containerRef.current, start: 'top 75%', toggleActions: 'play none none none' },
+      gsap.utils.toArray('.climax-block').forEach((block, index) => {
+        ScrollTrigger.create({
+          trigger: block,
+          start: 'top 55%',
+          end: 'bottom 45%',
+          onEnter: () => setActivePhase(index),
+          onEnterBack: () => setActivePhase(index),
+        });
+
+        gsap.fromTo(block, {
+          y: 40,
+          opacity: 0,
+        }, {
+          y: 0,
+          opacity: 1,
+          duration: 0.6,
+          delay: index * 0.12,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: block,
+            start: 'top 85%',
+            toggleActions: 'play none none none',
+          },
+        });
       });
-      gsap.from('.climax-scene__phases', {
-        y: 40, opacity: 0, duration: 1, ease: 'power3.out',
-        scrollTrigger: { trigger: containerRef.current, start: 'top 60%', toggleActions: 'play none none none' },
-      });
-    }, containerRef);
+    }, container);
 
     return () => ctx.revert();
-  }, []);
+  }, [phases]);
 
-  /* ── Phase transition animation ── */
-  const handlePhaseChange = useCallback((index) => {
-    if (index === activePhase || transitioning) return;
-    setTransitioning(true);
-
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduced) {
-      setActivePhase(index);
-      setActiveHotspot(null);
-      setTransitioning(false);
-      return;
-    }
-
-    const img = imageRef.current;
-    if (img) {
-      gsap.to(img, {
-        opacity: 0, scale: 1.05, duration: 0.4, ease: 'power2.in',
-        onComplete: () => {
-          setActivePhase(index);
-          setActiveHotspot(null);
-          gsap.fromTo(img,
-            { opacity: 0, scale: 0.95 },
-            { opacity: 1, scale: 1, duration: 0.6, ease: 'power2.out', onComplete: () => setTransitioning(false) },
-          );
-        },
-      });
-    } else {
-      setActivePhase(index);
-      setActiveHotspot(null);
-      setTransitioning(false);
-    }
-  }, [activePhase, transitioning]);
-
-  const currentPhase = scene.phases[activePhase];
-  const phaseImage = scene.phaseImages?.[activePhase] ?? PHASE_IMAGES[activePhase] ?? PHASE_IMAGES[0];
+  if (!scene || phases.length === 0) return null;
 
   return (
-    <div className="climax-scene wow-effect" ref={containerRef}>
-      <h3 className="climax-scene__title">{scene.title}</h3>
-
-      {/* ── Cinematic Image Viewport ── */}
-      <div className="climax-scene__viewport">
-        <div className="climax-scene__img-wrap" ref={imageRef}>
-          <img
-            src={phaseImage}
-            alt={currentPhase?.label ?? 'Minh họa trận chiến'}
-            className="climax-scene__img"
-          />
-          {/* Vignette overlay */}
-          <div className="climax-scene__vignette" aria-hidden="true" />
-          {/* Phase label overlay */}
-          <div className="climax-scene__phase-overlay" aria-hidden="true">
-            <span className="climax-scene__phase-num">{String(activePhase + 1).padStart(2, '0')}</span>
-            <span className="climax-scene__phase-name">{currentPhase?.label}</span>
-          </div>
-        </div>
+    <div className="climax-reveal" ref={containerRef}>
+      <div className="climax-reveal__header">
+        <h3 className="climax-reveal__title">{scene.title}</h3>
+        {(scene.summary || scene.description) && (
+          <p className="climax-reveal__lead">{scene.summary || scene.description}</p>
+        )}
+        {scene.quote && <blockquote className="climax-reveal__quote">{scene.quote}</blockquote>}
+        <p className="climax-reveal__subtitle">{phases.length} giai đoạn then chốt</p>
       </div>
 
-      {/* ── Phase Navigation ── */}
-      <div className="climax-scene__phases">
-        {scene.phases.map((phase, i) => (
+      <div className="climax-reveal__phases">
+        {phases.map((phase, index) => {
+          const phaseImage = scene.phaseImages?.[index] || scene.backgroundImage;
+          const isReverse = index % 2 === 1;
+
+          return (
+            <article
+              className={[
+                'climax-block',
+                index === activePhase && 'climax-block--active',
+                isReverse && 'climax-block--reverse',
+              ].filter(Boolean).join(' ')}
+              key={phase.id || index}
+            >
+              <div className="climax-block__image-panel">
+                <div className="climax-block__image-wrapper">
+                  {(!phaseImage || phaseImage.includes('generated-climax')) ? (
+                    <div className="climax-block__image-placeholder">
+                      Cần duyệt ảnh cao trào {index + 1}
+                    </div>
+                  ) : (
+                    <>
+                      <img src={phaseImage} alt={phase.label} loading="lazy" />
+                      <div className="climax-block__image-overlay" />
+                    </>
+                  )}
+                </div>
+              </div>
+
+              <div className="climax-block__content">
+                <div className="climax-block__header-row">
+                  <span className="climax-block__num">{String(index + 1).padStart(2, '0')}</span>
+                  <h4 className="climax-block__label">{phase.label}</h4>
+                </div>
+                <p className="climax-block__summary">{phase.summary}</p>
+                <div className="climax-block__body">
+                  {(phase.description || '').split(/\n\n|\\n\\n/).map((paragraph, paragraphIndex) => (
+                    <p key={paragraphIndex}>{paragraph}</p>
+                  ))}
+                </div>
+                {phase.keyDetail && (
+                  <aside className="climax-block__detail">
+                    <span className="climax-block__detail-tag">Chi tiết quan trọng</span>
+                    <p>{phase.keyDetail}</p>
+                  </aside>
+                )}
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+export const TacticalMap = ({ scene, fullscreen = false, showHeading = true }) => {
+  const [activeHotspot, setActiveHotspot] = useState(null);
+  const [pinnedHotspot, setPinnedHotspot] = useState(null);
+  const hotspots = scene?.hotspots ?? [];
+  const currentHotspotId = pinnedHotspot || activeHotspot;
+  const currentHotspot = hotspots.find((hotspot) => hotspot.id === currentHotspotId);
+  const mapImage = scene?.mapImage || scene?.backgroundImage;
+
+  if (!mapImage || hotspots.length === 0) return null;
+
+  return (
+    <div className={`climax-map ${fullscreen ? 'climax-map--fullscreen' : ''}`}>
+      {showHeading && <h4 className="climax-map__heading">Bản đồ chiến thuật</h4>}
+      <div className="climax-map__viewport">
+        <img
+          src={mapImage}
+          alt={`Bản đồ ${scene.title}`}
+          className="climax-map__img"
+          width="1600"
+          height="1000"
+          loading="lazy"
+        />
+        {hotspots.map((hotspot) => (
           <button
-            className={`climax-phase-btn ${i === activePhase ? 'is-active' : ''}`}
-            key={phase.id}
-            onClick={() => handlePhaseChange(i)}
+            className={`climax-map__hotspot ${currentHotspotId === hotspot.id ? 'is-active' : ''}`}
+            aria-expanded={currentHotspotId === hotspot.id}
+            key={hotspot.id}
+            style={{ left: `${hotspot.x}%`, top: `${hotspot.y}%` }}
+            onClick={() => setPinnedHotspot(pinnedHotspot === hotspot.id ? null : hotspot.id)}
+            onMouseEnter={() => setActiveHotspot(hotspot.id)}
+            onMouseLeave={() => setActiveHotspot(null)}
             type="button"
-            disabled={transitioning}
+            aria-label={hotspot.label}
           >
-            <span className="climax-phase-btn__num">{String(i + 1).padStart(2, '0')}</span>
-            <span className="climax-phase-btn__label">{phase.label}</span>
+            <span className="climax-map__pulse" aria-hidden="true" />
+            <span className="climax-map__dot" />
+            <span className="climax-map__sr-only">
+              {hotspot.description} {hotspot.role || hotspot.tacticalRole || ''}
+            </span>
           </button>
         ))}
-      </div>
 
-      {/* ── Phase Detail Content ── */}
-      <div className="climax-scene__phase-content" key={currentPhase.id}>
-        <p className="climax-scene__phase-summary">{currentPhase.summary}</p>
-        <div className="climax-scene__phase-body">
-          {currentPhase.description.split('\\n\\n').map((para, i) => (
-            <p key={i}>{para}</p>
-          ))}
-        </div>
-        {currentPhase.keyDetail && (
-          <aside className="climax-scene__key-detail">
-            <span className="climax-scene__key-detail-label">Chi tiết quan trọng</span>
-            <p>{currentPhase.keyDetail}</p>
-          </aside>
-        )}
-      </div>
-
-      {/* ── Tactical Map with Hotspots ── */}
-      <div className="climax-scene__map-container">
-        <h4 className="climax-scene__map-heading">Bản đồ chiến thuật</h4>
-        <div className="climax-scene__map">
-          <img src={scene.backgroundImage} alt={`Bản đồ ${scene.title}`} className="climax-scene__map-img" />
-          {scene.hotspots.map((hs) => (
+        {currentHotspot && (
+          <div
+            className="climax-map__tooltip"
+            style={getTooltipPlacement(currentHotspot)}
+          >
+            <strong>{currentHotspot.label}</strong>
+            <p>{currentHotspot.description}</p>
+            {(currentHotspot.role || currentHotspot.tacticalRole) && (
+              <p className="climax-map__role">
+                <span>Vai trò:</span> {currentHotspot.role || currentHotspot.tacticalRole}
+              </p>
+            )}
             <button
-              className={`climax-hotspot ${activeHotspot === hs.id ? 'is-active' : ''}`}
-              key={hs.id}
-              style={{ left: `${hs.x}%`, top: `${hs.y}%` }}
-              onClick={() => setActiveHotspot(activeHotspot === hs.id ? null : hs.id)}
+              className="climax-map__tooltip-close"
+              onClick={(event) => {
+                event.stopPropagation();
+                setPinnedHotspot(null);
+                setActiveHotspot(null);
+              }}
               type="button"
-              aria-label={hs.label}
+              aria-label="Đóng"
             >
-              <span className="climax-hotspot__pulse" aria-hidden="true" />
-              <span className="climax-hotspot__dot" />
+              ×
             </button>
-          ))}
-          {activeHotspot && (() => {
-            const hs = scene.hotspots.find((h) => h.id === activeHotspot);
-            if (!hs) return null;
-            const tLeft = hs.x > 60 ? 'auto' : `${hs.x}%`;
-            const tRight = hs.x > 60 ? `${100 - hs.x}%` : 'auto';
-            return (
-              <div className="climax-tooltip" style={{ left: tLeft, right: tRight, top: `${Math.min(hs.y + 6, 80)}%` }}>
-                <strong className="climax-tooltip__label">{hs.label}</strong>
-                <p className="climax-tooltip__desc">{hs.description}</p>
-                <button className="climax-tooltip__close" onClick={(e) => { e.stopPropagation(); setActiveHotspot(null); }} type="button" aria-label="Đóng">✕</button>
-              </div>
-            );
-          })()}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

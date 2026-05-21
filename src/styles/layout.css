@@ -188,6 +188,12 @@
   transform: translateY(-1px);
 }
 
+.site-nav__icon {
+  flex: 0 0 auto;
+  margin-left: 6px;
+  opacity: .8;
+}
+
 .site-main {
   min-height: calc(100vh - 168px);
 }
@@ -280,12 +286,15 @@
 
 @media (max-width: 760px) {
   .site-nav {
-    gap: 14px;
-    padding: 0 18px;
+    gap: 12px;
+    min-width: 0;
+    padding: 0 12px;
   }
 
   .site-nav__brand {
     font-size: 24px;
+    margin-right: auto;
+    min-width: 0;
   }
 
   .logo-wordmark {
@@ -294,6 +303,40 @@
 
   .site-nav__logo-text {
     gap: 0;
+  }
+
+  .site-nav__links {
+    flex: 0 0 auto;
+    gap: 10px;
+  }
+
+  .grade-dropdown-trigger {
+    font-size: 13px;
+  }
+
+  .site-nav__link--ai,
+  .site-nav__link--search {
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    margin-left: 0;
+    padding: 8px;
+  }
+
+  .site-nav__link--ai .site-nav__link-text,
+  .site-nav__link--search .site-nav__link-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .site-nav__icon {
+    width: 18px;
+    height: 18px;
+    margin-left: 0;
   }
 
   .site-footer__grid {

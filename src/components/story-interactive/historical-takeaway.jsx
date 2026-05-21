@@ -5,7 +5,8 @@ export const HistoricalTakeaway = ({ takeaway }) => {
     { numeral: 'I', title: 'Điều đã xảy ra', body: takeaway.happened },
     { numeral: 'II', title: 'Vì sao quan trọng', body: takeaway.whyItMatters },
     { numeral: 'III', title: 'Bài học rút ra', body: takeaway.lesson },
-  ];
+  ].filter((section) => section.body);
+  const extraLessons = takeaway.lessons || takeaway.keyLessons || [];
 
   return (
     <div className="takeaway-panel">
@@ -19,6 +20,11 @@ export const HistoricalTakeaway = ({ takeaway }) => {
           </div>
         ))}
       </div>
+      {extraLessons.length > 0 && (
+        <ul className="takeaway-panel__lessons">
+          {extraLessons.map((lesson, index) => <li key={index}>{lesson}</li>)}
+        </ul>
+      )}
     </div>
   );
 };

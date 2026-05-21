@@ -18,7 +18,7 @@ export const hungVuongDungNuoc = {
   featured: true,
   summary: 'Truyền thuyết về thời đại Hùng Vương và nền Văn Lang.',
   excerpt: 'Từ miền trung du, câu chuyện dựng nước mở đầu ký ức cộng đồng Việt.',
-  image: '/images/generated/hung-vuong.png',
+  image: '/images/generated/cac-vua-hung.png',
   fallbackImage: '/images/generated/parchment.png',
   location: 'Phong Châu',
   actors: ['Các Vua Hùng'],

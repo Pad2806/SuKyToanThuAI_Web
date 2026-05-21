@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { EventStoryPage } from '../components/story-system/event-story-page.jsx';
 import { RouteCard } from '../components/shared/route-card.jsx';
-import { SuspenseLoader } from '../components/shared/suspense-loader.jsx';
+import { EventSkeleton } from '../components/story-system/event-skeleton.jsx';
 import { useAuth } from '../hooks/use-auth.js';
 import { getAiPage } from '../lib/ai-pages-api.js';
 
@@ -29,7 +29,7 @@ export const AiGeneratedEventPage = () => {
     return () => { cancelled = true; };
   }, [pageId, user]);
 
-  if (authLoading || loading) return <SuspenseLoader label="Đang tải trang AI" />;
+  if (authLoading || loading) return <EventSkeleton />;
 
   const payload = page?.renderPayload;
   if (error || !payload?.eventData) {

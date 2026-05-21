@@ -12,9 +12,10 @@ export const BeatBlocks = ({ blocks = [], skipTypes = [] }) => (
       .map((b, i) => {
         switch (b.type) {
           case 'text':
-            return <p key={i} className="evt-text-block">{b.body}</p>;
+            return <p key={i} className="evt-text-block">{textFromBlock(b)}</p>;
 
           case 'image':
+            if (!(b.image || '').trim()) return null;
             return (
               <figure key={i} className="evt-image-block">
                 <img
@@ -40,11 +41,28 @@ export const BeatBlocks = ({ blocks = [], skipTypes = [] }) => (
           case 'quick-facts':
             return null; // Handled separately by sections that need it
 
+          case 'list':
+          case 'bullet-list':
+            return (
+              <ul key={i} className="evt-list-block">
+                {(b.items ?? []).map((item, itemIndex) => (
+                  <li key={itemIndex}>{typeof item === 'string' ? item : item.value || item.label}</li>
+                ))}
+              </ul>
+            );
+
           default:
             return null;
         }
       })}
   </>
+);
+
+const textFromBlock = (block) => (
+  block.body
+  || block.text
+  || block.description
+  || ''
 );
 
 /**

@@ -23,6 +23,7 @@ export const QualityGatePanel = ({ eventStatus = 'draft', report, onCheck, onPub
 
   const score = report?.score ?? 0;
   const passed = report?.passed ?? false;
+  const issues = report?.blockingIssues || report?.issues || report?.errors || [];
   const canSubmitReview = passed && eventStatus === 'draft';
   const canPublish = passed && eventStatus === 'review';
 
@@ -68,11 +69,15 @@ export const QualityGatePanel = ({ eventStatus = 'draft', report, onCheck, onPub
         <p className="admin-note">Sự kiện đang chờ duyệt và có thể công bố.</p>
       )}
 
-      {(report?.blockingIssues || []).length > 0 && (
-        <ul className="admin-source-list">
-          {report.blockingIssues.map((item) => (
-            <li key={item.key}><strong>{item.label}</strong>: {item.reason}</li>
-          ))}
+      {issues.length > 0 && (
+        <ul className="admin-source-list" style={{ color: '#ffb1a8' }}>
+          {issues.map((item, idx) => {
+            const key = typeof item === 'object' ? item.key || idx : idx;
+            const content = typeof item === 'object' ? (
+              <>{item.label ? <strong>{item.label}: </strong> : null}{item.reason}</>
+            ) : item;
+            return <li key={key}>{content}</li>;
+          })}
         </ul>
       )}
 

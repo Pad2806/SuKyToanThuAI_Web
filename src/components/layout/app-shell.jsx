@@ -31,6 +31,7 @@ export const AppShell = ({ children }) => {
   useSmoothScroll();
   const { pathname } = useLocation();
   const isFullscreen = FULLSCREEN_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`));
+  const isEventStoryRoute = pathname.startsWith('/su-kien/');
 
   if (isFullscreen) {
     return (
@@ -45,11 +46,10 @@ export const AppShell = ({ children }) => {
     <div className="app-shell">
       <ScrollToTop />
       <Navbar />
-      <main className="site-main">{children}</main>
+      <main className={isEventStoryRoute ? 'site-main site-main--story-fullscreen' : 'site-main'}>{children}</main>
       <Footer />
     </div>
   );
 };
 
 export default AppShell;
-

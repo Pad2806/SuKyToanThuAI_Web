@@ -3,30 +3,32 @@
    Dark strategic maps, red & gold, military precision
    ═══════════════════════════════════════════════ */
 [data-story-theme="war-strategy"] {
-  --bg-dark: #0d0a07;
-  --bg-dark-warm: #181008;
-  --bg-parchment: #1a150e;
-  --bg-parchment-2: #141008;
-  --surface-parchment: #1e1810;
-  --text-on-dark: #e0d4b8;
-  --text-on-parch: #e0d4b8;
-  --gold: #b8860b;
-  --gold-dim: #7a5a08;
-  --gold-glow: rgba(184, 134, 11, 0.15);
-  --ink-red: #8b0000;
-  --ink-green: #2e6a2e;
-  --divider: rgba(184, 134, 11, 0.18);
-}
-
-[data-story-theme="war-strategy"] .evt-section--light {
-  background: var(--bg-parchment);
-  color: var(--text-on-parch);
+  --bg-dark: #0a0908;
+  --bg-dark-warm: #14100c;
+  --bg-parchment: #ede2ca;
+  --bg-parchment-2: #ddd0b4;
+  --surface-parchment: #f0e5ce;
+  --surface-elevated: rgba(194, 112, 58, 0.05);
+  --text-on-dark: #dcd0b8;
+  --text-on-parch: #1c1610;
+  --gold: #b8963e;
+  --gold-dim: #7a5f28;
+  --gold-bright: #cca84a;
+  --gold-glow: rgba(184, 150, 62, 0.12);
+  --ink-red: #993333;
+  --ink-red-dim: rgba(153, 51, 51, 0.12);
+  --ink-green: #2e5a2e;
+  --ink-green-dim: rgba(46, 90, 46, 0.12);
+  --ember: #b86030;
+  --ember-glow: rgba(184, 96, 48, 0.1);
+  --divider: rgba(184, 150, 62, 0.15);
+  --border-subtle: rgba(184, 150, 62, 0.06);
 }
 
 [data-story-theme="war-strategy"] .evt-section--climax {
-  background: linear-gradient(180deg, #1a0000 0%, #0d0a07 100%);
+  background: linear-gradient(180deg, #1c0808 0%, #100808 40%, #0a0908 100%);
 }
 
-[data-story-theme="war-strategy"] .evt-section--light .evt-section__eyebrow-text {
-  color: var(--gold);
+[data-story-theme="war-strategy"] .evt-section--climax::before {
+  background: linear-gradient(90deg, transparent, #993333, transparent);
 }

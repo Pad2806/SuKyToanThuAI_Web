@@ -1,6 +1,6 @@
-/* ═══════════════════════════════════════════════════════
-   STORYTELLING RENDERER — Cinematic Editorial Layout
-   ═══════════════════════════════════════════════════════ */
+﻿/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   STORYTELLING RENDERER â€” Cinematic Editorial Layout
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 .st-renderer {
   position: relative;
@@ -9,7 +9,7 @@
   overflow-x: hidden;
 }
 
-/* ─── Spatial Narrative Map Viewport ─── */
+/* â”€â”€â”€ Spatial Narrative Map Viewport â”€â”€â”€ */
 .st-map-viewport {
   position: fixed;
   inset: 0;
@@ -37,7 +37,7 @@
   mix-blend-mode: multiply;
 }
 
-/* ─── Full-Screen Hero ─── */
+/* â”€â”€â”€ Full-Screen Hero â”€â”€â”€ */
 .st-hero {
   position: relative;
   display: grid;
@@ -160,7 +160,7 @@
   font-size: 15px;
 }
 
-/* ─── Sticky Table of Contents ─── */
+/* â”€â”€â”€ Sticky Table of Contents â”€â”€â”€ */
 .st-toc {
   position: sticky;
   top: 68px;
@@ -226,9 +226,9 @@
   letter-spacing: 0.03em;
 }
 
-/* ═══════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    BEAT SECTIONS
-   ═══════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .st-beat {
   padding: 80px 0 0;
   scroll-margin-top: 128px;
@@ -250,7 +250,7 @@
   color: var(--text-on-dark);
 }
 
-/* ─── Full-width Image Zone ─── */
+/* â”€â”€â”€ Full-width Image Zone â”€â”€â”€ */
 .st-beat__image-zone {
   position: relative;
   width: 100%;
@@ -301,7 +301,7 @@
   z-index: 1;
 }
 
-/* ─── Beat Shell (Number rail + Content) ─── */
+/* â”€â”€â”€ Beat Shell (Number rail + Content) â”€â”€â”€ */
 .st-beat__shell {
   display: grid;
   gap: 36px;
@@ -339,7 +339,7 @@
   min-height: 80px;
 }
 
-/* ─── Beat Inner Content ─── */
+/* â”€â”€â”€ Beat Inner Content â”€â”€â”€ */
 .st-beat__inner {
   max-width: 72ch;
 }
@@ -401,7 +401,7 @@
   gap: 28px;
 }
 
-/* ─── Block styling overrides within beats ─── */
+/* â”€â”€â”€ Block styling overrides within beats â”€â”€â”€ */
 .st-beat__content .text-block p {
   font-size: clamp(16px, 1.4vw, 19px);
   line-height: 1.8;
@@ -468,7 +468,7 @@
   letter-spacing: 0.03em;
 }
 
-/* ─── Quick Facts in beats ─── */
+/* â”€â”€â”€ Quick Facts in beats â”€â”€â”€ */
 .st-beat__content .quick-facts {
   border-left: 4px solid var(--gold);
   background: var(--surface-parchment);
@@ -481,7 +481,7 @@
   border-left-color: var(--gold);
 }
 
-/* ─── Event Meta Panel in beats ─── */
+/* â”€â”€â”€ Event Meta Panel in beats â”€â”€â”€ */
 .st-beat__content .event-meta-panel,
 .st-beat .event-meta-panel {
   border-left: 4px solid var(--gold);
@@ -495,7 +495,7 @@
   gap: 16px;
 }
 
-/* ─── Beat Transition Ornament ─── */
+/* â”€â”€â”€ Beat Transition Ornament â”€â”€â”€ */
 .st-beat__transition {
   display: flex;
   flex-direction: column;
@@ -527,9 +527,9 @@
   opacity: 0.35;
 }
 
-/* ═══════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    END MARK
-   ═══════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .st-endmark {
   text-align: center;
   padding: 96px 24px 120px;
@@ -574,9 +574,9 @@
   border-color: var(--gold);
 }
 
-/* ═══════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    RESPONSIVE
-   ═══════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 @media (max-width: 860px) {
   .st-hero__facts {
     grid-template-columns: 1fr;

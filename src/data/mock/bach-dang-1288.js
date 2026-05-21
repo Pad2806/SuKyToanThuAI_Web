@@ -23,6 +23,8 @@ export const bachDang1288 = {
   actors: ['Trần Hưng Đạo', 'Trần Khánh Dư'],
   opponent: 'Quân Nguyên – Mông',
   result: 'Đại Việt chiến thắng',
+  theme: 'war-strategy',
+  relatedEventSlugs: ['chien-thang-bach-dang-938', 'khoi-nghia-hai-ba-trung'],
 
   /* â”€â”€ Characters â”€â”€ */
   characters: [

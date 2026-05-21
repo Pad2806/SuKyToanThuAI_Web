@@ -17,10 +17,26 @@ const getEventImage = (event) =>
 export const EventListSection = ({ error, events, loading, onRetry, variant = 'timeline' }) => {
   if (loading) {
     return (
-      <div className="event-list-section is-loading">
-        <div className="loading-pulse" />
-        <p>Đang tải dòng sự kiện...</p>
-      </div>
+      <section className={`event-list-section event-list-section--${variant} is-loading-skeleton`} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '30px', width: '100%' }}>
+        {Array.from({ length: 6 }).map((_, index) => (
+          <div className="event-card event-card--skeleton" key={index} style={{ border: '1px solid rgba(222,188,98,0.08)', borderRadius: '12px', background: '#0e0905', display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
+            <div className="evt-skeleton-item evt-skeleton-shimmer" style={{ width: '100%', height: '220px', borderRadius: '12px 12px 0 0', display: 'block' }} />
+            <div className="event-card__body" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px', flex: 1 }}>
+              <div className="event-card__meta" style={{ display: 'flex', gap: '12px' }}>
+                <span className="evt-skeleton-item evt-skeleton-shimmer" style={{ width: '60px', height: '14px', display: 'block' }} />
+                <span className="evt-skeleton-item evt-skeleton-shimmer" style={{ width: '80px', height: '14px', display: 'block' }} />
+              </div>
+              <h3 className="evt-skeleton-item evt-skeleton-shimmer" style={{ width: '85%', height: '24px', display: 'block', marginTop: '4px', marginBottom: '4px' }} />
+              <p className="evt-skeleton-item evt-skeleton-shimmer" style={{ width: '100%', height: '16px', display: 'block' }} />
+              <p className="evt-skeleton-item evt-skeleton-shimmer" style={{ width: '92%', height: '16px', display: 'block' }} />
+              <div className="event-card__footer" style={{ display: 'flex', justifyContent: 'space-between', marginTop: 'auto', paddingTop: '12px' }}>
+                <span className="evt-skeleton-item evt-skeleton-shimmer" style={{ width: '90px', height: '14px', display: 'block' }} />
+                <span className="evt-skeleton-item evt-skeleton-shimmer" style={{ width: '70px', height: '14px', display: 'block' }} />
+              </div>
+            </div>
+          </div>
+        ))}
+      </section>
     );
   }
 

@@ -5,7 +5,7 @@ import { StorytellingRenderer } from '../components/story/storytelling-renderer.
 import { EventStoryPage } from '../components/story-system/event-story-page.jsx';
 import { fetchStoryEvent, hasInteractiveData, fetchRelatedEvents } from '../lib/event-api.js';
 import { getEventBySlug, getRelatedEvents } from '../lib/event-queries.js';
-import { SuspenseLoader } from '../components/shared/suspense-loader.jsx';
+import { EventSkeleton } from '../components/story-system/event-skeleton.jsx';
 
 /**
  * Event Detail Page — the route handler.
@@ -46,7 +46,7 @@ export const EventDetailPage = () => {
 
   /* ── Loading state ── */
   if (loading) {
-    return <SuspenseLoader label="Đang tải câu chuyện" />;
+    return <EventSkeleton />;
   }
 
   /* ── Interactive story page (new system) ── */

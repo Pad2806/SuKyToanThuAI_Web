@@ -14,11 +14,21 @@ const approvedAssetKeys = (assets = []) => new Set(
 
 const assetsReady = (event, assets = []) => {
   const approved = approvedAssetKeys(assets);
-  if (event?.template_type === 'battle') {
-    return ['hero', 'climax', 'aftermath'].every((key) => approved.has(key))
-      && (approved.has('battle-map') || approved.has('battlefield'));
+  return requiredAssetKeys(event).every((key) => approved.has(key));
+};
+
+const requiredAssetKeys = (event) => {
+  const data = event?.interactive_data || {};
+  const keys = ['hero', 'context', 'climax', 'aftermath', 'takeaway'];
+  (data.characters || []).forEach((_, index) => keys.push(`character-${index + 1}`));
+  (data.timeline || []).forEach((_, index) => keys.push(`timeline-scene-${index + 1}`));
+  (data.climaxScene?.phases || []).forEach((_, index) => keys.push(`climax-phase-${index + 1}`));
+  if (data.climaxScene?.hotspots?.length) {
+    keys.push(event?.template_type === 'battle_air_defense' ? 'air-raid-map' : 'battle-map');
+  } else if (event?.template_type === 'battle') {
+    keys.push('battle-map');
   }
-  return approved.has('hero');
+  return keys;
 };
 
 const interactionsReady = (event) => {
@@ -47,6 +57,12 @@ export const buildAdminFlowSteps = (detail, qualityReport) => {
   return steps.map((step, index) => ({ ...step, active: activeIndex === index }));
 };
 
+const IconCheck = () => (
+  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12"/>
+  </svg>
+);
+
 export const AdminFlowChecklist = ({ steps }) => (
   <section className="admin-flow" aria-label="Quy trình xuất bản">
     <ol className="admin-flow__list">
@@ -54,8 +70,11 @@ export const AdminFlowChecklist = ({ steps }) => (
         <li
           className={`admin-flow__step ${step.done ? 'is-done' : ''} ${step.active ? 'is-active' : ''}`}
           key={step.key}
+          style={{ opacity: !step.done && !step.active ? 0.5 : 1, color: step.active ? 'var(--gold)' : (step.done ? 'var(--green, #4ade80)' : 'inherit') }}
         >
-          <span className="admin-flow__index">{index + 1}</span>
+          <span className="admin-flow__index" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+            {step.done ? <IconCheck /> : index + 1}
+          </span>
           <span>{step.label}</span>
         </li>
       ))}

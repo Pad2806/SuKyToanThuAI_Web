@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 const beatTypes = ['hook', 'setup', 'rising', 'climax', 'falling', 'takeaway'];
 const beatLabels = ['Mở màn', 'Bối cảnh', 'Dâng cao', 'Cao trào', 'Hệ quả', 'Bài học'];
+const sideLabels = { ally: 'Quân ta', enemy: 'Đối phương', other: 'Trung lập / khác' };
 
 const IconPen = () => (
   <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -35,13 +36,10 @@ export const StoryInteractionsEditor = ({ event, story, readOnly = false, onSave
     const normalized = normalizeStory(story?.story_json || story, event?.template_type);
     const interactive = event?.interactive_data || {};
     setBeats(normalized.beats);
-    setCharacters(normalizeRows(interactive.characters, { name: '', role: '', bio: '' }));
-    setTimeline(normalizeRows(interactive.timeline, { year: '', title: '', description: '' }));
+    setCharacters(normalizeRows(interactive.characters, { name: '', role: '', side: 'ally', bio: '' }));
+    setTimeline(normalizeRows(interactive.timeline, { day: '', month: '', year: '', title: '', description: '' }));
     setQuiz(normalizeRows(interactive.quiz, { question: '', options: '', correct: 0, explanation: '' }));
-    setClimax({
-      title: interactive.climaxScene?.title || '',
-      summary: interactive.climaxScene?.phases?.[0]?.summary || interactive.climaxScene?.phases?.[0]?.description || '',
-    });
+    setClimax(normalizeClimax(interactive.climaxScene));
     setAftermath({ title: interactive.aftermath?.title || '' });
     setTakeaway({
       happened: interactive.takeaway?.happened || '',
@@ -64,17 +62,26 @@ export const StoryInteractionsEditor = ({ event, story, readOnly = false, onSave
       id: `nhan-vat-${index + 1}`,
       name: item.name.trim(),
       role: item.role.trim(),
+      side: item.side || 'other',
       bio: item.bio.trim(),
     })),
     timeline: timeline.filter((item) => item.title.trim()).map((item, index) => ({
       id: `moc-${index + 1}`,
+      day: String(item.day || '').trim(),
+      month: String(item.month || '').trim(),
       year: item.year.trim(),
+      date: formatTimelineDate(item),
       title: item.title.trim(),
       description: item.description.trim(),
     })),
-    climaxScene: climax.title.trim() || climax.summary.trim() ? {
+    climaxScene: climax.title.trim() || climax.phases.some((phase) => phase.summary.trim() || phase.description.trim()) ? {
       title: climax.title.trim(),
-      phases: [{ id: 'giai-doan-1', label: 'Cao trào', summary: climax.summary.trim(), description: climax.summary.trim() }],
+      phases: climax.phases.filter((phase) => phase.summary.trim() || phase.description.trim()).map((phase, index) => ({
+        id: phase.id || `giai-doan-${index + 1}`,
+        label: phase.label.trim() || `Giai đoạn ${index + 1}`,
+        summary: phase.summary.trim() || phase.description.trim(),
+        description: phase.description.trim() || phase.summary.trim(),
+      })),
       hotspots: [],
     } : null,
     aftermath: aftermath.title.trim() ? { title: aftermath.title.trim(), stats: [] } : null,
@@ -130,21 +137,15 @@ export const StoryInteractionsEditor = ({ event, story, readOnly = false, onSave
 
       <hr className="admin-section-divider" />
 
-      <EditorRows
+      <CharacterRows
         disabled={readOnly}
-        title="Nhân vật"
         rows={characters}
         setRows={setCharacters}
-        fields={[['name', 'Tên nhân vật'], ['role', 'Vai trò'], ['bio', 'Tiểu sử']]}
-        empty={{ name: '', role: '', bio: '' }}
       />
-      <EditorRows
+      <TimelineRows
         disabled={readOnly}
-        title="Dòng thời gian"
         rows={timeline}
         setRows={setTimeline}
-        fields={[['year', 'Năm'], ['title', 'Mốc sự kiện'], ['description', 'Mô tả']]}
-        empty={{ year: '', title: '', description: '' }}
       />
 
       <div className="editor-grid">
@@ -156,16 +157,6 @@ export const StoryInteractionsEditor = ({ event, story, readOnly = false, onSave
             placeholder="Tiêu đề cao trào…"
             value={climax.title}
             onChange={(e) => setClimax({ ...climax, title: e.target.value })}
-          />
-        </label>
-        <label>Tóm tắt cao trào
-          <textarea
-            autoComplete="off"
-            disabled={readOnly}
-            name="climax-summary"
-            placeholder="Mô tả chi tiết…"
-            value={climax.summary}
-            onChange={(e) => setClimax({ ...climax, summary: e.target.value })}
           />
         </label>
         <label>Tiêu đề hệ quả
@@ -209,6 +200,8 @@ export const StoryInteractionsEditor = ({ event, story, readOnly = false, onSave
           />
         </label>
       </div>
+
+      <ClimaxPhaseRows disabled={readOnly} climax={climax} setClimax={setClimax} />
 
       <EditorRows
         disabled={readOnly}
@@ -258,6 +251,86 @@ const EditorRows = ({ title, rows, setRows, fields, empty, disabled }) => (
   </div>
 );
 
+const CharacterRows = ({ rows, setRows, disabled }) => (
+  <div className="editor-list">
+    <h3>Nhân vật</h3>
+    {rows.map((row, index) => (
+      <div className="editor-row" key={`character-${index}`}>
+        <label>Tên nhân vật
+          <input autoComplete="off" disabled={disabled} name={`character-${index}-name`} placeholder="Tên nhân vật…" value={row.name} onChange={(e) => updateRows(setRows, index, 'name', e.target.value)} />
+        </label>
+        <label>Vai trò
+          <input autoComplete="off" disabled={disabled} name={`character-${index}-role`} placeholder="Vai trò…" value={row.role} onChange={(e) => updateRows(setRows, index, 'role', e.target.value)} />
+        </label>
+        <label>Phía tham gia
+          <select disabled={disabled} name={`character-${index}-side`} value={row.side || 'other'} onChange={(e) => updateRows(setRows, index, 'side', e.target.value)}>
+            {Object.entries(sideLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+          </select>
+        </label>
+        <label>Tiểu sử
+          <input autoComplete="off" disabled={disabled} name={`character-${index}-bio`} placeholder="Tiểu sử…" value={row.bio} onChange={(e) => updateRows(setRows, index, 'bio', e.target.value)} />
+        </label>
+      </div>
+    ))}
+    <button className="admin-btn" aria-label="Thêm nhân vật" disabled={disabled} onClick={() => setRows((current) => [...current, { name: '', role: '', side: 'ally', bio: '' }])} type="button">
+      <IconPlus />
+      Thêm nhân vật
+    </button>
+  </div>
+);
+
+const TimelineRows = ({ rows, setRows, disabled }) => (
+  <div className="editor-list">
+    <h3>Dòng thời gian</h3>
+    {rows.map((row, index) => (
+      <div className="editor-row" key={`timeline-${index}`}>
+        <label>Ngày
+          <input autoComplete="off" disabled={disabled} inputMode="numeric" name={`timeline-${index}-day`} placeholder="Có thể bỏ trống" value={row.day || ''} onChange={(e) => updateRows(setRows, index, 'day', e.target.value)} />
+        </label>
+        <label>Tháng
+          <input autoComplete="off" disabled={disabled} inputMode="numeric" name={`timeline-${index}-month`} placeholder="Có thể bỏ trống" value={row.month || ''} onChange={(e) => updateRows(setRows, index, 'month', e.target.value)} />
+        </label>
+        <label>Năm
+          <input autoComplete="off" disabled={disabled} name={`timeline-${index}-year`} placeholder="Ví dụ: 1954" value={row.year || ''} onChange={(e) => updateRows(setRows, index, 'year', e.target.value)} />
+        </label>
+        <label>Mốc sự kiện
+          <input autoComplete="off" disabled={disabled} name={`timeline-${index}-title`} placeholder="Mốc sự kiện…" value={row.title} onChange={(e) => updateRows(setRows, index, 'title', e.target.value)} />
+        </label>
+        <label>Mô tả
+          <input autoComplete="off" disabled={disabled} name={`timeline-${index}-description`} placeholder="Mô tả…" value={row.description} onChange={(e) => updateRows(setRows, index, 'description', e.target.value)} />
+        </label>
+      </div>
+    ))}
+    <button className="admin-btn" aria-label="Thêm mốc thời gian" disabled={disabled} onClick={() => setRows((current) => [...current, { day: '', month: '', year: '', title: '', description: '' }])} type="button">
+      <IconPlus />
+      Thêm mốc thời gian
+    </button>
+  </div>
+);
+
+const ClimaxPhaseRows = ({ climax, setClimax, disabled }) => (
+  <div className="editor-list">
+    <h3>Các giai đoạn cao trào</h3>
+    {climax.phases.map((phase, index) => (
+      <div className="editor-row" key={phase.id || `climax-${index}`}>
+        <label>Nhãn giai đoạn
+          <input autoComplete="off" disabled={disabled} name={`climax-${index}-label`} placeholder={`Giai đoạn ${index + 1}`} value={phase.label} onChange={(e) => updateClimaxPhase(setClimax, index, 'label', e.target.value)} />
+        </label>
+        <label>Tóm tắt cao trào
+          <textarea autoComplete="off" disabled={disabled} name={`climax-${index}-summary`} placeholder="Tóm tắt cao trào…" value={phase.summary} onChange={(e) => updateClimaxPhase(setClimax, index, 'summary', e.target.value)} />
+        </label>
+        <label>Mô tả chi tiết
+          <textarea autoComplete="off" disabled={disabled} name={`climax-${index}-description`} placeholder="Mô tả chi tiết…" value={phase.description} onChange={(e) => updateClimaxPhase(setClimax, index, 'description', e.target.value)} />
+        </label>
+      </div>
+    ))}
+    <button className="admin-btn" aria-label="Thêm giai đoạn cao trào" disabled={disabled} onClick={() => setClimax((current) => ({ ...current, phases: [...current.phases, emptyClimaxPhase(current.phases.length)] }))} type="button">
+      <IconPlus />
+      Thêm giai đoạn cao trào
+    </button>
+  </div>
+);
+
 function normalizeStory(story, templateType) {
   const sourceBeats = story?.beats || [];
   return {
@@ -275,13 +348,10 @@ function initialEditorState(event, story) {
   const interactive = event?.interactive_data || {};
   return {
     beats: normalized.beats,
-    characters: normalizeRows(interactive.characters, { name: '', role: '', bio: '' }),
-    timeline: normalizeRows(interactive.timeline, { year: '', title: '', description: '' }),
+    characters: normalizeRows(interactive.characters, { name: '', role: '', side: 'ally', bio: '' }),
+    timeline: normalizeRows(interactive.timeline, { day: '', month: '', year: '', title: '', description: '' }),
     quiz: normalizeRows(interactive.quiz, { question: '', options: '', correct: 0, explanation: '' }),
-    climax: {
-      title: interactive.climaxScene?.title || '',
-      summary: interactive.climaxScene?.phases?.[0]?.summary || interactive.climaxScene?.phases?.[0]?.description || '',
-    },
+    climax: normalizeClimax(interactive.climaxScene),
     aftermath: { title: interactive.aftermath?.title || '' },
     takeaway: {
       happened: interactive.takeaway?.happened || '',
@@ -295,6 +365,33 @@ function normalizeRows(rows, empty) {
   return rows?.length
     ? rows.map((row) => ({ ...empty, ...row, options: Array.isArray(row.options) ? row.options.join(' | ') : row.options || '' }))
     : [empty];
+}
+
+function normalizeClimax(scene) {
+  const phases = Array.isArray(scene?.phases) && scene.phases.length
+    ? scene.phases.map((phase, index) => ({
+      id: phase.id || `giai-doan-${index + 1}`,
+      label: phase.label || `Giai đoạn ${index + 1}`,
+      summary: phase.summary || phase.description || '',
+      description: phase.description || phase.summary || '',
+    }))
+    : [emptyClimaxPhase(0)];
+  return { title: scene?.title || '', phases };
+}
+
+function emptyClimaxPhase(index) {
+  return { id: `giai-doan-${index + 1}`, label: `Giai đoạn ${index + 1}`, summary: '', description: '' };
+}
+
+function updateClimaxPhase(setClimax, index, key, value) {
+  setClimax((current) => ({
+    ...current,
+    phases: current.phases.map((phase, i) => (i === index ? { ...phase, [key]: value } : phase)),
+  }));
+}
+
+function formatTimelineDate(item) {
+  return [item.day, item.month, item.year].map((value) => String(value || '').trim()).filter(Boolean).join('/');
 }
 
 function splitOptions(value) {

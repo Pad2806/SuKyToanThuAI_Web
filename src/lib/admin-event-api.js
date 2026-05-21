@@ -23,4 +23,5 @@ export const adminEventApi = {
   submitReview: (eventId) => api.post(`${base}/${eventId}/submit-review`, {}),
   publish: (eventId) => api.post(`${base}/${eventId}/publish`, {}),
   archive: (eventId) => api.post(`${base}/${eventId}/archive`, {}),
+  assignLesson: (eventId, payload) => api.patch(`${base}/${eventId}/lesson`, payload),
 };

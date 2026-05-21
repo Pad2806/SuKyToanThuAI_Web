@@ -27,6 +27,30 @@ const writeAuth = (auth) => {
   }
 };
 
+const formatValidationIssue = (issue) => {
+  if (!issue || typeof issue !== 'object') return String(issue || '');
+  const loc = Array.isArray(issue.loc)
+    ? issue.loc.filter((part) => part !== 'body').join('.')
+    : '';
+  const message = issue.msg || issue.message || issue.detail || JSON.stringify(issue);
+  return loc ? `${loc}: ${message}` : message;
+};
+
+const formatErrorDetail = (detail) => {
+  if (!detail) return '';
+  if (typeof detail === 'string') return detail;
+  if (Array.isArray(detail)) {
+    return detail.map(formatValidationIssue).filter(Boolean).join('; ');
+  }
+  if (typeof detail === 'object') {
+    const nested = detail.message ?? detail.msg ?? detail.detail;
+    if (typeof nested === 'string') return nested;
+    if (nested != null && typeof nested !== 'object') return String(nested);
+    return JSON.stringify(detail);
+  }
+  return String(detail);
+};
+
 async function request(path, options = {}) {
   const auth = readAuth();
   const headers = new Headers(options.headers ?? {});
@@ -45,7 +69,7 @@ async function request(path, options = {}) {
   }
   if (!response.ok) {
     const payload = await response.json().catch(() => ({}));
-    throw new Error(payload.detail || `HTTP ${response.status}`);
+    throw new Error(formatErrorDetail(payload.detail) || `HTTP ${response.status}`);
   }
   if (response.status === 204) return null;
   return response.json();
