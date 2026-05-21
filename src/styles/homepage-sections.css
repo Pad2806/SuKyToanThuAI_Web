@@ -84,7 +84,7 @@
 
 .timeline-river__track {
   position: relative;
-  max-width: 1120px;
+  max-width: 1320px;
   margin: 0 auto;
   padding: 0 42px;
   z-index: 2;
@@ -126,7 +126,7 @@
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 88px;
+  gap: 68px;
   margin-bottom: 92px;
   align-items: start;
   perspective: 1000px;

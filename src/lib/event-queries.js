@@ -115,6 +115,34 @@ export const formatHistoricalYear = (year) => {
   return value < 0 ? `${Math.abs(value)} TCN` : `${value}`;
 };
 
+export const formatHistoricalPeriod = (event = {}) => {
+  const formatValue = (value) => {
+    if (value === null || value === undefined || value === '') return '';
+    const text = String(value).trim();
+    const numeric = Number(text);
+    if (Number.isFinite(numeric) && text === String(numeric)) {
+      return formatHistoricalYear(numeric);
+    }
+    return text.replace(/(^|[\s(])-(\d+)/g, (_, prefix, year) => `${prefix}${year} TCN`);
+  };
+
+  if (event.timeRange?.from || event.timeRange?.to) {
+    const from = formatValue(event.timeRange.from);
+    const to = formatValue(event.timeRange.to);
+    return [from, to].filter(Boolean).join(' – ');
+  }
+
+  if (event.yearRange) return formatValue(event.yearRange);
+
+  if (event.startYear || event.endYear) {
+    const from = formatValue(event.startYear);
+    const to = formatValue(event.endYear);
+    return [from, to].filter(Boolean).join(' – ');
+  }
+
+  return formatHistoricalYear(event.year);
+};
+
 export const getAllEvents = () => [...events].map(normalizeEvent).sort(byYear);
 
 export const getEventBySlug = (eventSlug) => {

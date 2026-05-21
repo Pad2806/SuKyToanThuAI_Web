@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { AiPageHistory } from '../components/ai-studio/ai-page-history.jsx';
+import { NoDataResult } from '../components/studio/no-data-result.jsx';
 import { AiPageBg } from '../components/shared/ai-page-bg';
 import { useAuth } from '../hooks/use-auth.js';
 import { createResearchPage, listAiPages } from '../lib/ai-pages-api.js';
@@ -37,14 +38,31 @@ export const StudioPage = () => {
     setLoading(true);
     setError('');
     setNoData('');
+    console.log('[Studio] Submitting research:', { query, template });
     try {
       const response = await createResearchPage({ query, template });
+      console.log('[Studio] API response:', JSON.stringify(response, null, 2));
+      const imageSummary = response.renderPayload?.imageGenerationSummary || response.imageGenerationSummary;
+      if (imageSummary) {
+        console.table(imageSummary.map((item) => ({
+          slot: item.slot,
+          status: item.status,
+          provider: item.provider,
+          model: item.model,
+          url: item.url,
+          error: item.error,
+        })));
+      }
       if (response.status === 'no_data') {
+        console.warn('[Studio] No data found:', response);
         setNoData(response.detail || 'Không tìm thấy dữ liệu phù hợp.');
       } else {
+        console.log('[Studio] Navigating to page:', response.id);
         navigate(`/ai/trang/${response.id}`);
       }
     } catch (err) {
+      console.error('[Studio] API error:', err);
+      console.error('[Studio] Error response:', err.response?.data || err.message);
       setError(err.message || 'Không thể tạo trang nghiên cứu.');
     } finally {
       setLoading(false);
@@ -77,12 +95,12 @@ export const StudioPage = () => {
           />
         </div>
         <div className="studio-form__controls">
-          <label className="studio-form__template-select">
+          {/* <label className="studio-form__template-select">
             <span>Template hiển thị</span>
             <select value={template} onChange={(event) => setTemplate(event.target.value)}>
               {TEMPLATES.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
             </select>
-          </label>
+          </label> */}
           <button type="submit" className="studio-form__submit" disabled={loading || !query.trim()}>
             {loading ? 'Đang tạo trang...' : 'Tìm kiếm & tạo trang'}
           </button>
@@ -90,7 +108,7 @@ export const StudioPage = () => {
       </form>
 
       {error && <div className="studio-result studio-result--error"><p>{error}</p></div>}
-      {noData && <div className="studio-result studio-result--error"><p>{noData}</p></div>}
+      {noData && <NoDataResult message={noData} onSuggestionClick={(text) => { setQuery(text); setNoData(''); }} />}
 
       <AiPageHistory
         title="Lịch sử nghiên cứu"
