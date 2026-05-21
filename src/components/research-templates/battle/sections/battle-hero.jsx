@@ -1,19 +1,29 @@
 import React, { useRef } from 'react';
 import { Link } from 'react-router';
-import { useHeroAnimation } from '../hooks/use-story-animations.js';
-import { formatHistoricalPeriod } from '../../../lib/event-queries.js';
-import { resolveImageUrl } from '../../../lib/fallback-image.js';
+import { useHeroAnimation } from '../hooks/use-battle-animations.js';
+import { formatHistoricalPeriod } from '../../../../lib/event-queries.js';
+import { resolveImageUrl } from '../../../../lib/fallback-image.js';
 
 /**
- * Full-screen cinematic hero — Section I: Hook.
- * Renders the immersive entry point for every historical event.
- * All content driven by the event data object.
+ * BattleHero — Full-screen cinematic hero for battle events.
+ * Back link goes to Không Gian AI.
  */
-export const EventHero = ({ event, heroScrolled, previewMode = false }) => {
+export const BattleHero = ({ event, heroScrolled }) => {
   const heroRef = useRef(null);
-  useHeroAnimation(heroRef, previewMode);
+  useHeroAnimation(heroRef);
 
-  const heroImage = (event.image || '').trim() ? event.image : (event.fallbackImage || '/images/generated/parchment.png');
+  /* Strip "Tiêu đề:" or similar prefixes from excerpt */
+  const cleanExcerpt = (text) => {
+    if (!text) return '';
+    return text.replace(/^["']?\s*Tiêu đề\s*[:：]\s*/i, '').trim();
+  };
+
+  /* Show max 3 actor names, e.g. "A, B, C +2" */
+  const MAX_ACTORS = 3;
+  const actors = event.actors ?? [];
+  const actorDisplay = actors.length <= MAX_ACTORS
+    ? actors.join(', ')
+    : `${actors.slice(0, MAX_ACTORS).join(', ')} +${actors.length - MAX_ACTORS}`;
 
   return (
     <header className="evt-hero" ref={heroRef} id="evt-hook">
@@ -23,17 +33,16 @@ export const EventHero = ({ event, heroScrolled, previewMode = false }) => {
         <div className="evt-hero__grain" />
       </div>
       <div className="evt-hero__inner">
-        <Link className="evt-hero__back" to="/">
+        <Link className="evt-hero__back" to="/khong-gian-ai">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
-          Về trang chủ
+          Không Gian AI
         </Link>
-        <span className="evt-hero__era">{event.eraSlug?.replaceAll('-', ' ')}</span>
         <h1 className="evt-hero__title">{event.title}</h1>
         <div className="evt-hero__divider" aria-hidden="true" />
         <blockquote className="evt-hero__quote">
-          <p>"{event.excerpt}"</p>
+          <p>"{cleanExcerpt(event.excerpt)}"</p>
         </blockquote>
         <dl className="evt-hero__facts">
           <div>
@@ -46,7 +55,7 @@ export const EventHero = ({ event, heroScrolled, previewMode = false }) => {
           </div>
           <div>
             <dt>Nhân vật</dt>
-            <dd>{(event.actors ?? []).join(', ')}</dd>
+            <dd>{actorDisplay}</dd>
           </div>
           {event.opponent && (
             <div>
@@ -69,4 +78,4 @@ export const EventHero = ({ event, heroScrolled, previewMode = false }) => {
   );
 };
 
-export default EventHero;
+export default BattleHero;

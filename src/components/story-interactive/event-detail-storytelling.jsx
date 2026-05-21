@@ -11,7 +11,7 @@ import { HistoricalTakeaway } from './historical-takeaway.jsx';
 import { KnowledgeQuiz } from './knowledge-quiz.jsx';
 import { StoryProgressIndicator } from './story-progress-indicator.jsx';
 import { ReadingProgressBar } from '../story/reading-progress-bar.jsx';
-import { formatHistoricalYear } from '../../lib/event-queries.js';
+import { formatHistoricalPeriod } from '../../lib/event-queries.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -175,7 +175,7 @@ export const EventDetailStorytelling = ({ event }) => {
           <dl className="evt-hero__facts">
             <div>
               <dt>Thời gian</dt>
-              <dd>{formatHistoricalYear(event.year)}</dd>
+              <dd>{formatHistoricalPeriod(event)}</dd>
             </div>
             <div>
               <dt>Địa điểm</dt>

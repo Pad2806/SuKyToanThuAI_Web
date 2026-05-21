@@ -1,0 +1,510 @@
+/* ═══ Era Timeline — Specific Styles ═══
+   Uses existing .evt-* classes for hero, sections, progress.
+   Only era-specific components styled here.
+*/
+
+/* ── Era Overview Stats ── */
+.era-overview-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.era-stat {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(201, 168, 76, 0.2);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  backdrop-filter: blur(8px);
+}
+
+.era-stat--wide {
+  grid-column: 1 / -1;
+}
+
+.era-stat__value {
+  display: block;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--gold, #c9a84c);
+  line-height: 1.1;
+}
+
+.era-stat__label {
+  display: block;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.era-stat__highlight {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.85);
+  font-style: italic;
+}
+
+/* ── Era Flow (THE WOW COMPONENT) ── */
+.era-flow {
+  position: relative;
+  padding: 2rem 0;
+}
+
+.era-flow__line {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg,
+      transparent 0%,
+      rgba(201, 168, 76, 0.3) 5%,
+      rgba(201, 168, 76, 0.6) 50%,
+      rgba(201, 168, 76, 0.3) 95%,
+      transparent 100%);
+  transform: translateX(-50%);
+  box-shadow: 0 0 12px rgba(201, 168, 76, 0.15);
+}
+
+/* ── Era Card ── */
+.era-card {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 0;
+  padding: 1.5rem 0;
+  width: 100%;
+}
+
+.era-card--left {
+  flex-direction: row;
+}
+
+.era-card--right {
+  flex-direction: row-reverse;
+}
+
+.era-card--left .era-card__content {
+  margin-left: -115px;
+  margin-right: auto;
+  width: 58%;
+}
+
+.era-card--right .era-card__content {
+  margin-right:-115px;
+  margin-left: auto;
+  width: 58%;
+}
+
+/* Timeline dot */
+.era-card__dot {
+  position: absolute;
+  left: 50%;
+  top: 2.5rem;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+.era-card__dot-inner {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--gold, #c9a84c);
+  border: 3px solid #1a1a1a;
+  box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.3);
+}
+
+.era-card__dot-glow {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(201, 168, 76, 0.3) 0%, transparent 70%);
+  animation: era-dot-pulse 3s ease-in-out infinite;
+}
+
+@keyframes era-dot-pulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+
+  50% {
+    transform: scale(1.5);
+    opacity: 0.2;
+  }
+}
+
+/* Card content */
+.era-card__content {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(201, 168, 76, 0.15);
+  border-radius: 16px;
+  backdrop-filter: blur(8px);
+  transition: border-color 0.3s, box-shadow 0.3s;
+  overflow: hidden;
+  padding: 0;
+}
+
+.era-card__content:hover,
+.era-card--expanded .era-card__content {
+  border-color: rgba(201, 168, 76, 0.4);
+  box-shadow: 0 4px 24px rgba(201, 168, 76, 0.08);
+}
+
+/* Era card image */
+.era-card__image {
+  position: relative;
+  width: 100%;
+  height: 160px;
+  overflow: hidden;
+}
+
+.era-card__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.era-card__content:hover .era-card__image img {
+  transform: scale(1.05);
+}
+
+.era-card__image-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg,
+      transparent 40%,
+      rgba(26, 26, 26, 0.85) 100%);
+}
+
+.era-card__body {
+  padding: 1.5rem;
+}
+
+.era-card__header {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  text-align: left;
+  padding: 0;
+}
+
+.era-card__year-range {
+  font-size: 0.75rem;
+  color: var(--gold, #c9a84c);
+  background: rgba(201, 168, 76, 0.12);
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.era-card__name {
+  font-size: 1.15rem;
+  line-height: 1.32;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.95);
+  margin: 0;
+  flex: 1;
+}
+
+.era-card__header .era-card__name {
+  line-height: 1.32;
+}
+
+.era-card__chevron {
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.4);
+  transition: transform 0.3s;
+}
+
+.era-card__chevron--open {
+  transform: rotate(180deg);
+}
+
+.era-card__summary {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1.6;
+  margin: 0.75rem 0;
+}
+
+/* Key figures badges */
+.era-card__figures {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.75rem 0;
+}
+
+.era-figure-badge {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(201, 168, 76, 0.1);
+  border: 1px solid rgba(201, 168, 76, 0.2);
+  border-radius: 20px;
+  padding: 0.2rem 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.era-figure-badge__icon {
+  font-size: 0.7rem;
+  color: var(--gold, #c9a84c);
+  flex-shrink: 0;
+}
+
+/* Expandable events */
+.era-card__events {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s ease-out, opacity 0.3s;
+  opacity: 0;
+}
+
+.era-card__events--visible {
+  max-height: 2000px;
+  opacity: 1;
+  margin-top: 1rem;
+}
+
+.era-card__expand {
+  background: none;
+  border: 1px solid rgba(201, 168, 76, 0.2);
+  color: var(--gold, #c9a84c);
+  cursor: pointer;
+  font-size: 0.82rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: background 0.2s;
+}
+
+.era-card__expand:hover {
+  background: rgba(201, 168, 76, 0.1);
+}
+
+/* ── Event Node ── */
+.era-event-node {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.era-event-node:last-child {
+  border-bottom: none;
+}
+
+.era-event-node__icon {
+  font-size: 1.3rem;
+  flex-shrink: 0;
+  width: 2rem;
+  text-align: center;
+  color: var(--accent, var(--gold, #c9a84c));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.era-event-node__content {
+  flex: 1;
+}
+
+.era-event-node__year {
+  font-size: 0.75rem;
+  color: var(--accent, var(--gold, #c9a84c));
+  font-weight: 600;
+}
+
+.era-event-node__title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0.15rem 0;
+}
+
+.era-event-node__desc {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Era Connector ── */
+.era-connector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem 0;
+  transform-origin: top center;
+}
+
+.era-connector__line {
+  width: 2px;
+  height: 2rem;
+  background: rgba(201, 168, 76, 0.3);
+}
+
+.era-connector__label {
+  font-size: 0.78rem;
+  color: rgba(201, 168, 76, 0.7);
+  background: rgba(201, 168, 76, 0.06);
+  border: 1px solid rgba(201, 168, 76, 0.15);
+  border-radius: 20px;
+  padding: 0.3rem 0.8rem;
+  margin: 0.25rem 0;
+  text-align: center;
+  max-width: 280px;
+  font-style: italic;
+}
+
+/* ── Takeaway Cards ── */
+.era-takeaway-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.era-takeaway-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(201, 168, 76, 0.15);
+  border-radius: 12px;
+  padding: 1.25rem;
+  backdrop-filter: blur(6px);
+}
+
+.era-takeaway-card h4 {
+  font-size: 0.9rem;
+  color: var(--gold, #c9a84c);
+  margin: 0 0 0.5rem;
+}
+
+.era-takeaway-card p {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── Quiz ── */
+.era-quiz {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.era-quiz__title {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 1.5rem;
+}
+
+.era-quiz__question {
+  margin-bottom: 1.5rem;
+}
+
+.era-quiz__text {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+}
+
+.era-quiz__options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.era-quiz__option {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.75);
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  text-align: left;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.era-quiz__option:hover:not(:disabled) {
+  background: rgba(201, 168, 76, 0.08);
+  border-color: rgba(201, 168, 76, 0.3);
+}
+
+.era-quiz__option--correct {
+  background: rgba(74, 140, 92, 0.2) !important;
+  border-color: #4a8c5c !important;
+  color: #a3d9b0 !important;
+}
+
+.era-quiz__option--wrong {
+  background: rgba(212, 68, 62, 0.15) !important;
+  border-color: #d4443e !important;
+  color: #e88a87 !important;
+}
+
+.era-quiz__option:disabled {
+  cursor: default;
+  opacity: 0.8;
+}
+
+.era-quiz__explanation {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+  line-height: 1.5;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .era-flow__line {
+    left: 1.5rem;
+  }
+
+  .era-card--left,
+  .era-card--right {
+    flex-direction: row;
+  }
+
+  .era-card--left .era-card__content,
+  .era-card--right .era-card__content {
+    width: calc(100% - 3rem);
+    margin-left: auto;
+    margin-right: 0;
+  }
+
+  .era-card__dot {
+    left: 1.5rem;
+  }
+
+  .era-overview-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .era-quiz__options {
+    grid-template-columns: 1fr;
+  }
+}
