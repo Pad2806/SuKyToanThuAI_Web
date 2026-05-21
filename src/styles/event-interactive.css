@@ -75,7 +75,7 @@
 .char-grid__group-label--ally { color: var(--gold); border-bottom-color: var(--gold); }
 .char-grid__group-label--enemy { color: var(--ink-red); border-bottom-color: var(--ink-red); }
 .char-grid__stack { display: flex; flex-direction: column; gap: 12px; }
-.char-card { display: block; width: 100%; text-align: left; background: rgba(201,168,76,.03); border: 1px solid rgba(201,168,76,.1); padding: 0; cursor: pointer; transition: all 300ms; position: relative; overflow: hidden; }
+.char-card { display: block; width: 100%; text-align: left; background: rgba(201,168,76,.03); border: 1px solid rgba(201,168,76,.1); padding: 0; cursor: pointer; transition: all 300ms; position: relative; overflow: hidden; color: inherit; }
 .char-card__accent { height: 3px; background: var(--gold); transition: opacity 300ms; opacity: 0.3; }
 .char-card--ally .char-card__accent { background: var(--gold); }
 .char-card--enemy .char-card__accent { background: var(--ink-red); }
@@ -192,7 +192,7 @@
 .aftermath__col--before { border-left: 3px solid var(--ink-red); }
 .aftermath__col--after { border-left: 3px solid var(--ink-green); }
 .aftermath__col-title { display: flex; align-items: center; gap: 8px; font-family: var(--font-ui); font-size: var(--t-ui); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin: 0 0 12px; color: var(--gold); }
-.aftermath__list { margin: 0; padding: 0 0 0 18px; font-size: 14px; line-height: 1.8; }
+.aftermath__list { margin: 0; padding: 0 0 0 18px; font-size: 14px; line-height: 1.8; text-align: justify; }
 .aftermath__divider { display: flex; align-items: center; justify-content: center; padding-top: 20px; }
 
 /* ── Takeaway ── */
@@ -201,7 +201,7 @@
 .takeaway-card { padding: 28px 24px; border: 1px solid rgba(201,168,76,.12); background: rgba(201,168,76,.03); position: relative; }
 .takeaway-card__numeral { font-family: var(--font-display); font-size: 48px; font-weight: 700; color: rgba(201,168,76,.1); line-height: 1; display: block; margin-bottom: 8px; }
 .takeaway-card__title { font-family: var(--font-display); font-size: 18px; margin: 0 0 10px; color: var(--gold); }
-.takeaway-card__body { font-size: 14px; line-height: 1.7; margin: 0; opacity: .85; }
+.takeaway-card__body { font-size: 14px; line-height: 1.7; margin: 0; opacity: .85; text-align: justify; }
 
 /* ── Quiz ── */
 .quiz { padding: 32px; border: 1px solid rgba(201,168,76,.2); background: rgba(201,168,76,.04); }

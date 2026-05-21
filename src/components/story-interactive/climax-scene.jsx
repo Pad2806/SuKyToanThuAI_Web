@@ -4,12 +4,60 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const PHASE_IMAGES = [
-  '/images/generated/bach-dang-phase-1.png',
-  '/images/generated/bach-dang-phase-2.png',
-  '/images/generated/bach-dang-phase-3.png',
-  '/images/generated/bach-dang-phase-4.png',
-];
+/** Bộ ảnh theo template_key — thêm/sửa tại đây khi có ảnh mới */
+const TEMPLATE_IMAGE_SETS = {
+  battle: {
+    background: '/images/generated/bach-dang-tactical-map.png',
+    phases: [
+      '/images/generated/bach-dang-phase-1.png',
+      '/images/generated/bach-dang-phase-2.png',
+      '/images/generated/bach-dang-phase-3.png',
+      '/images/generated/bach-dang-phase-4.png',
+    ],
+  },
+  dynasty: {
+    background: '/images/generated/ly-tran.png',
+    phases: [
+      '/images/generated/hung-vuong.png',
+      '/images/generated/co-loa.png',
+      '/images/generated/dinh-le-ly.png',
+      '/images/generated/nguyen.png',
+    ],
+  },
+  movement: {
+    background: '/images/generated/hai-ba-trung.png',
+    phases: [
+      '/images/generated/hai-ba-trung-battle.png',
+      '/images/generated/dien-bien-phu-hero.png',
+      '/images/generated/dien-bien-phu-artillery.png',
+      '/images/generated/hien-dai.png',
+    ],
+  },
+  culture: {
+    background: '/images/generated/dong-son-drum.png',
+    phases: [
+      '/images/generated/hung-vuong-ceremony.png',
+      '/images/generated/co-loa-aerial.png',
+      '/images/generated/trinh-nguyen.png',
+      '/images/generated/dong-son-drum.png',
+    ],
+  },
+  universal: {
+    background: '/images/generated/parchment.png',
+    phases: [
+      '/images/generated/bach-dang.png',
+      '/images/generated/hai-ba-trung.png',
+      '/images/generated/hung-vuong.png',
+      '/images/generated/hien-dai.png',
+    ],
+  },
+};
+
+/** Lấy bộ ảnh theo templateType, fallback về universal */
+function getImageSet(templateType) {
+  return TEMPLATE_IMAGE_SETS[templateType] ?? TEMPLATE_IMAGE_SETS.universal;
+}
+
 
 export const ClimaxScene = ({ scene }) => {
   const [activePhase, setActivePhase] = useState(0);
@@ -72,7 +120,11 @@ export const ClimaxScene = ({ scene }) => {
   }, [activePhase, transitioning]);
 
   const currentPhase = scene.phases[activePhase];
-  const phaseImage = scene.phaseImages?.[activePhase] ?? PHASE_IMAGES[activePhase] ?? PHASE_IMAGES[0];
+  const imageSet = getImageSet(scene.templateType);
+  const phaseImage = scene.phaseImages?.[activePhase] ?? imageSet.phases[activePhase % imageSet.phases.length];
+  const mapImage = scene.backgroundImage && scene.backgroundImage !== '/images/generated/parchment.png'
+    ? scene.backgroundImage
+    : imageSet.background;
 
   return (
     <div className="climax-scene wow-effect" ref={containerRef}>
@@ -128,39 +180,42 @@ export const ClimaxScene = ({ scene }) => {
         )}
       </div>
 
-      {/* ── Tactical Map with Hotspots ── */}
-      <div className="climax-scene__map-container">
-        <h4 className="climax-scene__map-heading">Bản đồ chiến thuật</h4>
-        <div className="climax-scene__map">
-          <img src={scene.backgroundImage} alt={`Bản đồ ${scene.title}`} className="climax-scene__map-img" />
-          {scene.hotspots.map((hs) => (
-            <button
-              className={`climax-hotspot ${activeHotspot === hs.id ? 'is-active' : ''}`}
-              key={hs.id}
-              style={{ left: `${hs.x}%`, top: `${hs.y}%` }}
-              onClick={() => setActiveHotspot(activeHotspot === hs.id ? null : hs.id)}
-              type="button"
-              aria-label={hs.label}
-            >
-              <span className="climax-hotspot__pulse" aria-hidden="true" />
-              <span className="climax-hotspot__dot" />
-            </button>
-          ))}
-          {activeHotspot && (() => {
-            const hs = scene.hotspots.find((h) => h.id === activeHotspot);
-            if (!hs) return null;
-            const tLeft = hs.x > 60 ? 'auto' : `${hs.x}%`;
-            const tRight = hs.x > 60 ? `${100 - hs.x}%` : 'auto';
-            return (
-              <div className="climax-tooltip" style={{ left: tLeft, right: tRight, top: `${Math.min(hs.y + 6, 80)}%` }}>
-                <strong className="climax-tooltip__label">{hs.label}</strong>
-                <p className="climax-tooltip__desc">{hs.description}</p>
-                <button className="climax-tooltip__close" onClick={(e) => { e.stopPropagation(); setActiveHotspot(null); }} type="button" aria-label="Đóng">✕</button>
-              </div>
-            );
-          })()}
+      {/* ── Tactical Map with Hotspots — chỉ render khi có hotspot ── */}
+      {scene.hotspots?.length > 0 && (
+        <div className="climax-scene__map-container">
+          <h4 className="climax-scene__map-heading">Bản đồ chiến thuật</h4>
+          <div className="climax-scene__map">
+            <img src={mapImage} alt={`Bản đồ ${scene.title}`} className="climax-scene__map-img" />
+            {scene.hotspots.map((hs) => (
+              <button
+                className={`climax-hotspot ${activeHotspot === hs.id ? 'is-active' : ''}`}
+                key={hs.id}
+                style={{ left: `${hs.x}%`, top: `${hs.y}%` }}
+                onClick={() => setActiveHotspot(activeHotspot === hs.id ? null : hs.id)}
+                type="button"
+                aria-label={hs.label}
+              >
+                <span className="climax-hotspot__pulse" aria-hidden="true" />
+                <span className="climax-hotspot__dot" />
+              </button>
+            ))}
+            {activeHotspot && (() => {
+              const hs = scene.hotspots.find((h) => h.id === activeHotspot);
+              if (!hs) return null;
+              const tLeft = hs.x > 60 ? 'auto' : `${hs.x}%`;
+              const tRight = hs.x > 60 ? `${100 - hs.x}%` : 'auto';
+              return (
+                <div className="climax-tooltip" style={{ left: tLeft, right: tRight, top: `${Math.min(hs.y + 6, 80)}%` }}>
+                  <strong className="climax-tooltip__label">{hs.label}</strong>
+                  <p className="climax-tooltip__desc">{hs.description}</p>
+                  <button className="climax-tooltip__close" onClick={(e) => { e.stopPropagation(); setActiveHotspot(null); }} type="button" aria-label="Đóng">✕</button>
+                </div>
+              );
+            })()}
+          </div>
         </div>
-      </div>
+      )}
+
     </div>
   );
 };

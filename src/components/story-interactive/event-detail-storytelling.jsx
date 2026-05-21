@@ -312,7 +312,7 @@ export const EventDetailStorytelling = ({ event }) => {
 
             {/* Climax Interactive Scene */}
             {event.climaxScene && (
-              <ClimaxScene scene={event.climaxScene} />
+              <ClimaxScene scene={{ ...event.climaxScene, templateType: event.story?.templateType }} />
             )}
 
             {/* Climax quote */}

@@ -61,7 +61,7 @@ export const LoginPage = () => {
               <label htmlFor="login-email">Email</label>
               <input
                 id="login-email"
-                type="email"
+                type="text"
                 placeholder="email@example.com"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}

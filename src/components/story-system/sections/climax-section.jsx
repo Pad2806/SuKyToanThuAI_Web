@@ -12,7 +12,7 @@ export const ClimaxSection = ({ beat, event, sectionDef, variant }) => (
     <BeatBlocks blocks={beat?.blocks} />
 
     {event.climaxScene && (
-      <ClimaxScene scene={event.climaxScene} />
+      <ClimaxScene scene={{ ...event.climaxScene, templateType: event.story?.templateType }} />
     )}
   </StorySection>
 );

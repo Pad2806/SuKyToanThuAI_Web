@@ -2,16 +2,65 @@ import React, { useState } from 'react';
 
 const sideLabels = {
   'dai-viet': 'Đại Việt',
+  'viet-nam': 'Việt Nam',
+  'viet-minh': 'Việt Minh',
+  'tay-son': 'Tây Sơn',
+  'nha-tran': 'Nhà Trần',
+  'nha-le': 'Nhà Lê',
+  'nha-nguyen': 'Nhà Nguyễn',
+  'nha-ly': 'Nhà Lý',
+  'nha-tong': 'Nhà Tống',
+  'tong': 'Nhà Tống',
+  'minh': 'Nhà Minh',
+  'nha-minh': 'Nhà Minh',
+  'thanh': 'Nhà Thanh',
+  'nha-thanh': 'Nhà Thanh',
   'nguyen-mong': 'Nguyên – Mông',
+  'nguyen': 'Nhà Nguyên',
+  'phap': 'Thực dân Pháp',
+  'my': 'Đế quốc Mỹ',
+  'other': 'Khác',
+};
+
+const ALLY_SIDES = [
+  'dai-viet', 'viet-nam', 'viet-minh', 'tay-son', 
+  'nha-tran', 'nha-le', 'nha-nguyen', 'nha-ly',
+  'nha-ngo', 'nha-dinh', 'tien-le'
+];
+
+const isAllySide = (side, sideType) => {
+  if (sideType === 'ally') return true;
+  if (sideType === 'enemy') return false;
+  if (!side) return false;
+  return ALLY_SIDES.includes(side.toLowerCase());
+};
+
+const getSideLabel = (side, sideName) => {
+  if (sideName) return sideName;
+  if (!side) return '';
+  const sideLower = side.toLowerCase();
+  if (sideLabels[sideLower]) return sideLabels[sideLower];
+  
+  return side
+    .split('-')
+    .map(word => {
+      if (word === 'nha') return 'Nhà';
+      if (word === 'viet') return 'Việt';
+      if (word === 'nam') return 'Nam';
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    })
+    .join(' ');
 };
 
 export const CharacterCard = ({ character, index }) => {
   const [expanded, setExpanded] = useState(false);
-  const isDaiViet = character.side === 'dai-viet';
+  const sideType = character.sideType || character.side_type;
+  const sideName = character.sideName || character.side_name;
+  const isAlly = isAllySide(character.side, sideType);
 
   return (
     <button
-      className={`char-card ${expanded ? 'char-card--open' : ''} ${isDaiViet ? 'char-card--ally' : 'char-card--enemy'}`}
+      className={`char-card ${expanded ? 'char-card--open' : ''} ${isAlly ? 'char-card--ally' : 'char-card--enemy'}`}
       onClick={() => setExpanded((prev) => !prev)}
       type="button"
       aria-expanded={expanded}
@@ -35,7 +84,7 @@ export const CharacterCard = ({ character, index }) => {
           )}
         </div>
         <div className="char-card__info">
-          <span className="char-card__side">{sideLabels[character.side] ?? ''}</span>
+          <span className="char-card__side">{getSideLabel(character.side, sideName)}</span>
           <span className="char-card__name">{character.name}</span>
           <span className="char-card__role">{character.role}</span>
         </div>
@@ -59,8 +108,14 @@ export const CharacterCard = ({ character, index }) => {
 };
 
 export const CharacterGrid = ({ characters }) => {
-  const allies = characters.filter((c) => c.side === 'dai-viet');
-  const enemies = characters.filter((c) => c.side !== 'dai-viet');
+  const allies = characters.filter((c) => isAllySide(c.side, c.sideType || c.side_type));
+  const enemies = characters.filter((c) => !isAllySide(c.side, c.sideType || c.side_type));
+
+  const firstAlly = allies[0];
+  const allySideName = firstAlly ? getSideLabel(firstAlly.side, firstAlly.sideName || firstAlly.side_name) : 'Đại Việt';
+  
+  const firstEnemy = enemies[0];
+  const enemySideName = firstEnemy ? getSideLabel(firstEnemy.side, firstEnemy.sideName || firstEnemy.side_name) : 'Đối Phương';
 
   return (
     <div className="char-grid">
@@ -68,7 +123,7 @@ export const CharacterGrid = ({ characters }) => {
       <div className="char-grid__sides">
         {allies.length > 0 && (
           <div className="char-grid__group">
-            <span className="char-grid__group-label char-grid__group-label--ally">Đại Việt</span>
+            <span className="char-grid__group-label char-grid__group-label--ally">{allySideName}</span>
             <div className="char-grid__stack">
               {allies.map((c, i) => <CharacterCard key={c.id} character={c} index={i} />)}
             </div>
@@ -76,7 +131,7 @@ export const CharacterGrid = ({ characters }) => {
         )}
         {enemies.length > 0 && (
           <div className="char-grid__group">
-            <span className="char-grid__group-label char-grid__group-label--enemy">Nguyên – Mông</span>
+            <span className="char-grid__group-label char-grid__group-label--enemy">{enemySideName}</span>
             <div className="char-grid__stack">
               {enemies.map((c, i) => <CharacterCard key={c.id} character={c} index={i} />)}
             </div>
@@ -88,3 +143,5 @@ export const CharacterGrid = ({ characters }) => {
 };
 
 export default CharacterCard;
+
+

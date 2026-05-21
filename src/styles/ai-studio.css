@@ -1102,3 +1102,382 @@
   color: var(--gold) !important;
   font-weight: 600;
 }
+
+.studio-form select,
+.creator-form select {
+  background: rgba(13,11,7,0.65);
+  border: 1px solid rgba(212,175,82,0.22);
+  border-radius: 8px;
+  color: var(--text-on-dark);
+  font: inherit;
+  padding: 0.75rem 0.9rem;
+}
+
+.ai-coverage {
+  background: rgba(28,23,16,0.82);
+  border: 1px solid rgba(212,175,82,0.26);
+  border-radius: 10px;
+  color: var(--text-on-dark);
+  margin: 0 0 2rem;
+  padding: 1.25rem;
+}
+
+.ai-coverage h3 {
+  color: var(--gold);
+  font-family: var(--font-display);
+  margin: 0 0 0.5rem;
+}
+
+.ai-coverage ul {
+  display: grid;
+  gap: 0.65rem;
+  list-style: none;
+  margin: 1rem 0;
+  padding: 0;
+}
+
+.ai-coverage li {
+  border-left: 2px solid var(--gold-dim);
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding-left: 0.75rem;
+}
+
+.ai-coverage li span,
+.ai-page-history__empty {
+  color: var(--text-muted);
+}
+
+.ai-coverage__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.ai-coverage__primary,
+.ai-coverage__secondary {
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  padding: 0.75rem 1rem;
+}
+
+.ai-coverage__primary {
+  background: linear-gradient(135deg, var(--gold), var(--gold-dim));
+  border: none;
+  color: var(--bg-dark);
+}
+
+.ai-coverage__secondary {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.24);
+  color: var(--text-on-dark);
+}
+
+.ai-page-history {
+  margin-top: 2rem;
+}
+
+.ai-page-history__title {
+  color: var(--text-on-dark);
+  font-family: var(--font-display);
+  margin-bottom: 1rem;
+}
+
+.ai-page-history__list {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.ai-page-history__item {
+  align-items: center;
+  background: rgba(28,23,16,0.68);
+  border: 1px solid rgba(212,175,82,0.18);
+  border-radius: 8px;
+  color: var(--text-on-dark);
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: 72px 1fr;
+  padding: 0.75rem;
+  text-decoration: none;
+}
+
+.ai-page-history__item img {
+  aspect-ratio: 4 / 3;
+  border-radius: 6px;
+  object-fit: cover;
+  width: 72px;
+}
+
+.ai-page-history__item small {
+  color: var(--text-muted);
+  display: block;
+  margin-top: 0.25rem;
+}
+
+.ai-generated-banner {
+  background: #1c1710;
+  border-bottom: 1px solid rgba(212,175,82,0.28);
+  color: var(--gold);
+  font-weight: 700;
+  padding: 0.85rem 1rem;
+  text-align: center;
+}
+
+/* ══════════════════════════════════════════════════════════
+   Creator Loading Screen  (cls = creator loading screen)
+   ══════════════════════════════════════════════════════════ */
+
+/* Toàn màn hình overlay */
+.cls-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+/* Nền blur mờ phía sau */
+.cls-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(13, 11, 7, 0.78);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  animation: cls-fade-in 0.35s ease-out forwards;
+}
+
+@keyframes cls-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Card trung tâm */
+.cls-card {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  background: rgba(22, 18, 11, 0.9);
+  border: 1px solid rgba(212, 175, 82, 0.28);
+  border-top-color: rgba(212, 175, 82, 0.5);
+  border-radius: 20px;
+  padding: 2rem 2.25rem 1.75rem;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8), 0 0 60px rgba(201, 168, 76, 0.06) inset;
+  animation: cls-card-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes cls-card-in {
+  from { opacity: 0; transform: translateY(24px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Header ── */
+.cls-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Orb nhỏ nhấp nháy vàng */
+.cls-orb {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--gold);
+  flex-shrink: 0;
+  box-shadow: 0 0 10px rgba(201, 168, 76, 0.6);
+  animation: cls-orb-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes cls-orb-pulse {
+  0%, 100% { transform: scale(1);   opacity: 1;   box-shadow: 0 0 10px rgba(201,168,76,0.6); }
+  50%       { transform: scale(1.4); opacity: 0.7; box-shadow: 0 0 20px rgba(201,168,76,0.9); }
+}
+
+.cls-header__label {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+/* ── Word Scan Preview ── */
+.cls-scan {
+  background: rgba(8, 6, 4, 0.55);
+  border: 1px solid rgba(212, 175, 82, 0.14);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  max-height: 120px;
+}
+
+.cls-scan__label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.6rem;
+}
+
+.cls-scan__text {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.28);
+  margin: 0;
+  /* Che phần dưới bằng gradient */
+  -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+  mask-image:         linear-gradient(to bottom, black 50%, transparent 100%);
+}
+
+/* Từ chưa đọc */
+.cls-scan__word {
+  transition: color 0.08s ease, text-shadow 0.08s ease;
+}
+
+/* Từ đang được "đọc" */
+.cls-scan__word--active {
+  color: var(--gold) !important;
+  text-shadow: 0 0 12px rgba(201, 168, 76, 0.8);
+}
+
+/* Từ đã được đọc xong */
+.cls-scan__word--done {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* ── Pipeline Steps ── */
+.cls-pipeline {
+  list-style: none;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.cls-step {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  opacity: 0.32;
+  transition: opacity 0.4s ease, border-color 0.4s ease, background 0.4s ease;
+}
+
+/* Step đang chạy */
+.cls-step--active {
+  opacity: 1;
+  background: rgba(201, 168, 76, 0.06);
+  border-color: rgba(201, 168, 76, 0.22);
+}
+
+/* Step đã xong */
+.cls-step--done {
+  opacity: 0.68;
+}
+
+.cls-step__icon {
+  font-size: 16px;
+  width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+  /* Hiệu ứng check khi done */
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.cls-step--done .cls-step__icon {
+  transform: scale(1.15);
+  color: #4caf88;
+}
+
+.cls-step__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cls-step__label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-on-dark);
+  line-height: 1.3;
+}
+
+.cls-step__detail {
+  font-size: 12px;
+  color: var(--text-muted);
+  animation: cls-detail-in 0.3s ease-out;
+}
+
+@keyframes cls-detail-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Spinner nhỏ bên phải step đang chạy */
+.cls-step__spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(201, 168, 76, 0.2);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: spin 0.65s linear infinite;
+}
+
+/* ── Progress Bar ── */
+.cls-progress {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 100px;
+  height: 4px;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+}
+
+.cls-progress__bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+  border-radius: 100px;
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 0 8px rgba(201, 168, 76, 0.4);
+}
+
+.cls-progress__hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  margin: 0;
+  font-style: italic;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .cls-card {
+    padding: 1.5rem 1.25rem 1.25rem;
+    border-radius: 16px;
+  }
+  .cls-scan { max-height: 88px; }
+  .cls-scan__text { font-size: 13px; }
+}
+
+/* Respects reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .cls-orb      { animation: none; opacity: 1; }
+  .cls-step__spinner { animation: none; border-top-color: var(--gold); }
+  .cls-scan__word--active { color: var(--gold) !important; }
+  .cls-backdrop,
+  .cls-card     { animation: none; opacity: 1; transform: none; }
+}
+
